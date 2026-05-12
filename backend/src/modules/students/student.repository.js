@@ -1,5 +1,6 @@
 const db = require("../../config/firebase")
 const collection = db.collection("students")
+
 const getAllStudents = async() => {
     const snapshot = await collection.get()
     return snapshot.docs.map(doc => ({
@@ -15,7 +16,35 @@ const createStudent = async(studentData) => {
     }
 }
 
+const getStudentsById = async(id) => {
+    const doc = await collection.doc(id).get()
+
+    if(!doc.exists){
+        return null
+    }
+    return{
+        id: doc.id,
+        ...doc.data()
+    }
+}
+
+const updateStudent = async(id, studentData) => {
+    await collection.doc(id).update(studentData)
+    return {id}
+}
+
+const deleteStatus = async(id) => {
+    await collection.doc(id).update({
+        status: false,
+        deletedAt: new Date()
+    })
+    return{id}
+}
+
 module.exports = {
     getAllStudents,
-    createStudent
+    createStudent,
+    getStudentsById,
+    updateStudent,
+    deleteStatus
 }
