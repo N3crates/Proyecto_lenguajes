@@ -1,0 +1,31 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Build frontend
+dist/
+build/
+
+# Vite
+.vite/
+
+# Coverage
+coverage/
+
+# Firebase
+serviceAccountKey.json
+
+# Archivos sistema
+.DS_Store
+Thumbs.db
