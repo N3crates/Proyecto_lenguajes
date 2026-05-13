@@ -13,7 +13,7 @@ const createStudent = async (studentData) => {
     }
 
     studentData.status = true
-    studentData.createAt = new Date()
+    studentData.createdAt = new Date()
     return await repository.createStudent(studentData)
 }
 
@@ -38,11 +38,11 @@ const updateStudent = async(id, studentData) => {
     if(errors.length > 0) {
         throw new Error(errors.join(", "))
     }
-    studentData.updateAt = newData()
+    studentData.updatedAt = new Date()
     return await repository.updateStudent(id, studentData)
 }
 
-const deleteStatus = async(id) => {
+const deleteStudent = async(id) => {
     const student = await repository.getStudentsById(id)
 
     if(!student){
@@ -56,5 +56,5 @@ module.exports = {
     createStudent,
     getStudentsById,
     updateStudent,
-    deleteStatus
+    deleteStudent
 }

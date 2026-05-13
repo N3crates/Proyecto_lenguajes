@@ -33,7 +33,7 @@ const updateStudent = async(id, studentData) => {
     return {id}
 }
 
-const deleteStatus = async(id) => {
+const deleteStudent = async(id) => {
     await collection.doc(id).update({
         status: false,
         deletedAt: new Date()
@@ -46,5 +46,5 @@ module.exports = {
     createStudent,
     getStudentsById,
     updateStudent,
-    deleteStatus
+    deleteStudent
 }
