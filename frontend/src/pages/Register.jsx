@@ -3,11 +3,12 @@ import { useState } from "react";
 import axios from "axios";
 import "./Auth.css";
 
-function Login() {
+function Register() {
 
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: ""
   });
@@ -21,22 +22,23 @@ function Login() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-  try {
-    const response = await axios.post("http://localhost:3000/api/auth/login", formData);
 
-    // Accedemos a response.data.data porque tu controlador envía un objeto con la llave "data"
-    const loginData = response.data.data; 
+    try {
 
-    localStorage.setItem("token", loginData.token);
-    localStorage.setItem("user", JSON.stringify(loginData.user));
+      await axios.post(
+        "http://localhost:3000/api/auth/register",
+        formData
+      );
 
-    navigate("/dashboard");
+      alert("Usuario registrado correctamente");
+
+      navigate("/");
 
     } catch (error) {
 
       alert(
         error.response?.data?.message ||
-        "Error al iniciar sesión"
+        "Error al registrarse"
       );
 
       console.log(error);
@@ -50,26 +52,27 @@ function Login() {
       <div className="auth-left">
 
         <div className="auth-content">
+
           <h1>
-            Bienvenido <span>🐙</span>
+            Crear Cuenta ᓚᘏᗢ
           </h1>
 
           <p className="auth-subtitle">
-            Inicia sesión para continuar en EduControl
+            Regístrate para comenzar en EduControl
           </p>
 
           {/* TABS */}
           <div className="auth-tabs">
 
-            <button className="active">
-              Iniciar Sesión
-            </button>
-
-            <Link to="/register">
+            <Link to="/">
               <button>
-                Registrarse
+                Iniciar Sesión
               </button>
             </Link>
+
+            <button className="active">
+              Registrarse
+            </button>
 
           </div>
 
@@ -78,6 +81,23 @@ function Login() {
             className="auth-form"
             onSubmit={handleSubmit}
           >
+
+            <div className="form-group">
+
+              <label>
+                Nombre
+              </label>
+
+              <input
+                type="text"
+                name="name"
+                placeholder="Ingresa tu nombre"
+                value={formData.name}
+                onChange={handleChange}
+                required
+              />
+
+            </div>
 
             <div className="form-group">
 
@@ -105,7 +125,7 @@ function Login() {
               <input
                 type="password"
                 name="password"
-                placeholder="Ingresa tu contraseña"
+                placeholder="Crea una contraseña"
                 value={formData.password}
                 onChange={handleChange}
                 required
@@ -117,17 +137,19 @@ function Login() {
               type="submit"
               className="auth-button"
             >
-              Iniciar Sesión
+              Registrarse
             </button>
 
           </form>
 
           <p className="auth-footer">
-            ¿No tienes cuenta?
 
-            <Link to="/register">
-              Registrarse
+            ¿Ya tienes cuenta?
+
+            <Link to="/">
+              Iniciar sesión
             </Link>
+
           </p>
 
         </div>
@@ -142,8 +164,8 @@ function Login() {
           <h2>EduControl</h2>
 
           <p>
-            Gestiona estudiantes, materias y grupos
-            de forma simple y moderna.
+            Administra tu información académica
+            de manera eficiente.
           </p>
 
         </div>
@@ -154,4 +176,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;
