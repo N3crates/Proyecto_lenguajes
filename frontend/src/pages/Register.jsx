@@ -13,30 +13,50 @@ function Register() {
     password: ""
   });
 
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
   const handleChange = (e) => {
+
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+
   };
 
   const handleSubmit = async (e) => {
+
     e.preventDefault();
+
+    setErrorMessage("");
+    setSuccessMessage("");
 
     try {
 
-      await axios.post(
+      const response = await axios.post(
         "http://localhost:3000/api/auth/register",
         formData
       );
 
-      alert("Usuario registrado correctamente");
+      // MENSAJE DEL BACKEND
+      setSuccessMessage(response.data.message);
 
-      navigate("/");
+      // LIMPIAR FORMULARIO
+      setFormData({
+        name: "",
+        email: "",
+        password: ""
+      });
+
+      // REDIRECCIONAR DESPUÉS DE 2 SEGUNDOS
+      setTimeout(() => {
+        navigate("/");
+      }, 2000);
 
     } catch (error) {
 
-      alert(
+      setErrorMessage(
         error.response?.data?.message ||
         "Error al registrarse"
       );
@@ -75,6 +95,20 @@ function Register() {
             </button>
 
           </div>
+
+          {/* MENSAJE EXITOSO */}
+          {successMessage && (
+            <div className="success-message">
+              {successMessage}
+            </div>
+          )}
+
+          {/* MENSAJE ERROR */}
+          {errorMessage && (
+            <div className="error-message">
+              {errorMessage}
+            </div>
+          )}
 
           {/* FORMULARIO */}
           <form
