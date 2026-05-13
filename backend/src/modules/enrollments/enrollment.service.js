@@ -11,6 +11,14 @@ const createEnrollment = async(enrollmentData) => {
     if(errors.length > 0) {
         throw new Error(errors.join(", "))
     }
+
+    const duplicate = await repository.findDuplicateEnrollment(
+        enrollmentData.studentId, enrollmentData.subject, enrollmentData.group)
+    
+        if(duplicate) {
+            throw new Error("El alumno ya esta inscrito en esta materia y grupo")
+        }
+
     enrollmentData.status = true
     enrollmentData.createdAt = new Date()
 
@@ -39,10 +47,38 @@ const deleteEnrollment = async(id) => {
     return await repository.deleteEnrollment(id)
 }
 
+const updateEnrollment = async(id, enrollmentData) => {
+    const enrollment = await repository.getEnrollmentById(id)
+
+    if(!enrollment) {
+        throw new Error("Inscripción no encontrada")
+    }
+
+    const errors = validation.validateEnrollment(enrollmentData)
+
+    if(errors.length > 0){
+        throw new Error(errors.join(", "))
+    }
+
+    const duplicate = await repository.findDuplicateEnrollment(
+        enrollmentData.studentId, enrollmentData.subject, enrollmentData.group)
+    
+        if(duplicate && (enrollment.studentId !== enrollmentData.studentId
+            || enrollmentData.subject !== enrollmentData.subject
+            || enrollmentData.group !== enrollmentData.group)) {
+                throw new Error ("Ys existe una inscripción")
+            }
+        
+        enrollmentData.updatedAt = new Date()
+        
+        return await repository.updateEnrollment(id, enrollmentData) 
+}
+
 module.exports = {
     getEnrollments,
     createEnrollment,
     getEnrollmentById,
     getEnrollmentByStudentId,
-    deleteEnrollment
+    deleteEnrollment,
+    updateEnrollment
 }

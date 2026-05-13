@@ -54,10 +54,28 @@ const deleteEnrollment = async(id) => {
     return { id }
 }
 
+const findDuplicateEnrollment = async(studentId, subject, group) => {
+    const snapshot = await collection
+        .where("studentId", "==", studentId)
+        .where("subject", "==", subject)
+        .where("group", "==", group)
+        .where("status", "==", true)
+        .get()
+    
+    return !snapshot.empty
+}
+
+const updateEnrollment = async(id, enrollmentData) => {
+    await collection.doc(id).update(enrollmentData)
+    return { id }
+}
+
 module.exports = {
     getAllEnrollments,
     createEnrollment,
     getEnrollmentById,
     getEnrollmentByStudentId,
-    deleteEnrollment
+    deleteEnrollment,
+    findDuplicateEnrollment,
+    updateEnrollment
 }

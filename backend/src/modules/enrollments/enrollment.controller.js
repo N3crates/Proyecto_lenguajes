@@ -83,10 +83,28 @@ const deleteEnrollment = async(req, res) => {
     }
 }
 
+const updateEnrollment = async(req, res) => {
+    try {
+        const response = await service.updateEnrollment(req.params.id, req.body)
+
+        res.json({
+            success: true,
+            message: "Inscripcion Actualizada",
+            data: response
+        })
+    } catch (error) {
+        res.status(400).json({
+            success: false,
+            message: error.message
+        })
+    }
+}
+
 module.exports = {
     getEnrollments,
     createEnrollment,
     getEnrollmentById,
     getEnrollmentByStudentId,
-    deleteEnrollment
+    deleteEnrollment,
+    updateEnrollment
 }
