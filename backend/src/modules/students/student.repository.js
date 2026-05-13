@@ -2,7 +2,7 @@ const db = require("../../config/firebase")
 const collection = db.collection("students")
 
 const getAllStudents = async() => {
-    const snapshot = await collection.get()
+    const snapshot = await collection.where("status", "==", true).get()
     return snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
@@ -22,10 +22,14 @@ const getStudentsById = async(id) => {
     if(!doc.exists){
         return null
     }
-    return{
+    const student = {
         id: doc.id,
         ...doc.data()
     }
+    if(!student.status) {
+        return null
+    }
+    return student
 }
 
 const updateStudent = async(id, studentData) => {
