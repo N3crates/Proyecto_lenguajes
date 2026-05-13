@@ -111,7 +111,36 @@ const login = async (userData) => {
   };
 };
 
+
+const changePassword = async (userId, currentPassword, newPassword) => {
+  const userRef = db.collection('users').doc(userId);
+  const userDoc = await userRef.get();
+
+  if (!userDoc.exists) {
+    throw new Error('Usuario no encontrado');
+  }
+
+  const user = userDoc.data();
+
+  //-------Verificar que la contraseña actual sea correcta---------------
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) {
+    throw new Error('La contraseña actual es incorrecta');
+  }
+
+  //-------Encriptar la nueva contraseña---------------------------------
+  const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+
+  //-------Actualizar en la base de datos--------------------------------
+  await userRef.update({
+    password: hashedNewPassword
+  });
+
+  return { message: 'Contraseña actualizada correctamente' };
+};
+
 module.exports = {
   register,
-  login
+  login,
+  changePassword
 };

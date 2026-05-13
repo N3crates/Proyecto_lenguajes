@@ -37,7 +37,58 @@ const login = async(req, res) => {
   }
 };
 
+const getProfile = async (req, res) => {
+  try {
+    // Los datos ya vienen del middleware en req.user
+    res.status(200).json({
+      success: true,
+      data: req.user 
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error al obtener el perfil'
+    });
+  }
+};
+
+const logout = async (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Sesión cerrada exitosamente.'
+  });
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const userId = req.user.id; // Obtenido del middleware
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Ambas contraseñas son requeridas'
+      });
+    }
+
+    await authService.changePassword(userId, currentPassword, newPassword);
+
+    res.status(200).json({
+      success: true,
+      message: 'Contraseña cambiada con éxito!!'
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   register,
-  login
+  login,
+  getProfile,
+  logout,
+  changePassword
 };
