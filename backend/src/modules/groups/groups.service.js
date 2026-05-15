@@ -1,5 +1,5 @@
-const repository = require("./group.repository")
-const validation = require("./group.validation")
+const repository = require("./groups.repository")
+const validation = require("./groups.validation")
 
 const getGroups = async () => {
     return await repository.getAllGroups()

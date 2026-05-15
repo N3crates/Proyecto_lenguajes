@@ -1,4 +1,4 @@
-const service = require("./group.service")
+const service = require("./groups.service")
 
 const getGroups = async (req, res) => {
     try {

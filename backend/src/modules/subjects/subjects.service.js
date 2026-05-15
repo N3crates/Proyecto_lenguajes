@@ -1,5 +1,5 @@
-const repository = require("./subject.repository")
-const validation = require("./subject.validation")
+const repository = require("./subjects.repository")
+const validation = require("./subjects.validation")
 
 const getSubjects = async () => {
     return await repository.getAllSubjects()

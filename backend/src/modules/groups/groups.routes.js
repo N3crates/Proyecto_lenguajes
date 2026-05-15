@@ -1,5 +1,5 @@
 const express = require("express")
-const controller = require("./group.controller")
+const controller = require("./groups.controller")
 const router = express.Router()
 
 router.get("/", controller.getGroups)

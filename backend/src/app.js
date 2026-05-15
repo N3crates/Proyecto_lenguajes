@@ -4,7 +4,7 @@ const app = express();
 const authRoutes = require('./modules/auth/auth.routes');
 const studentRoutes = require("./modules/students/student.routes")
 const enrollmentRoutes = require("./modules/enrollments/enrollment.routes")
-const teacherRoutes = require("./modules/teachers/teachers.routes")
+const teacherRoutes = require("./modules/teachers/teacher.routes")
 const subjectRoutes = require("./modules/subjects/subjects.routes")
 const groupRoutes = require("./modules/groups/groups.routes")
 

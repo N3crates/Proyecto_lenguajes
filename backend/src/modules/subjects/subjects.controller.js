@@ -1,4 +1,4 @@
-const service = require("./subject.service")
+const service = require("./subjects.service")
 
 const getSubjects = async (req, res) => {
     try {
