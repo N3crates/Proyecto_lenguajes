@@ -85,10 +85,32 @@ const changePassword = async (req, res) => {
   }
 };
 
+const refresh = async (req, res) => {
+  try {
+    // El frontend nos debe enviar el refreshToken en el body
+    const { refreshToken } = req.body;
+    
+    const tokens = await authService.refreshTokenService(refreshToken);
+
+    res.status(200).json({
+      success: true,
+      message: 'Token refrescado correctamente',
+      data: tokens
+    });
+  } catch (error) {
+    // Si el refresh token caducó o es falso, mandamos 401 para que el frontend cierre la sesión
+    res.status(401).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
   logout,
-  changePassword
+  changePassword,
+  refresh
 };

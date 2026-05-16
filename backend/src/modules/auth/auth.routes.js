@@ -8,6 +8,7 @@ const authMiddleware = require('../../middlewares/auth.middleware');
 router.post('/register', authController.register);
 router.post('/login', authController.login);
 router.post('/logout', authController.logout);
+router.post('/refresh', authController.refresh);
 
 //Rutas privadas -> Requieren Token
 router.get('/me', authMiddleware, authController.getProfile);
