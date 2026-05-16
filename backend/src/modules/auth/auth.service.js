@@ -1,146 +1,117 @@
-const db = require('../../config/firebase');
+const authRepository = require('./auth.repository');
+const { validateRegister, validateLogin, validateChangePassword } = require('./auth.validation');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
 
+// Servicio de autenticación que maneja el registro, inicio de sesión,
+// cambio de contraseña y renovación de tokens.
 
-const register = async(userData) => {
-  const {
-    name,
-    email,
-    password
-  } = userData;
+const register = async (userData) => {
+  // Validar los datos de entrada según las reglas definidas en auth.validation.
+  const { error } = validateRegister(userData);
+  if (error) throw new Error(error);
 
-  //-------VALIDAR CAMPOS---------------------------
-  if (!name || !email || !password) {
-    throw new Error('Todos los campos son obligatorios');
-  }
+  // Verificar que no exista ya un usuario con el mismo correo.
+  const existingUser = await authRepository.findByEmail(userData.email);
+  if (existingUser) throw new Error('El usuario ya existe');
 
-  //------VERIFICAR SI USUARIO EXISTE---------------
-  const userRef = db.collection('users');
+  // Encriptar la contraseña antes de guardarla en la base de datos.
+  const hashedPassword = await bcrypt.hash(userData.password, 10);
 
-  const snapshot = await userRef
-    .where('email', '==', email)
-    .get();
-  
-  if (!snapshot.empty) {
-    throw new Error('El usuario ya existe');
-  }
-
-  //------HASH DE CONTRASENA------------------------
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  //------CREAR USUARIO------------------------------
   const newUser = {
-    name,
-    email,
+    name: userData.name,
+    email: userData.email,
     password: hashedPassword,
     role: 'user',
+    status: 'active',
     createdAt: new Date()
   };
 
-  //------GUARDAR EN FIRESTORE------------------------
-  const docRef = await userRef.add(newUser);
-
-  return {
-    id: docRef.id,
-    name,
-    email,
-    role: 'user'
-  };
+  // Guardar el nuevo usuario y devolver los datos sin la contraseña.
+  const savedUser = await authRepository.saveUser(newUser);
+  delete savedUser.password;
+  return savedUser;
 };
 
 const login = async (userData) => {
-  const { email, password } = userData;
+  // Validar los datos de inicio de sesión.
+  const { error } = validateLogin(userData);
+  if (error) throw new Error(error);
 
-  //--------VALIDAR CAMPOS-----------------------------
-  if (!email || !password) {
-    throw new Error('Todos los campos son obligatorios');
+  // Buscar el usuario por correo.
+  const user = await authRepository.findByEmail(userData.email);
+  if (!user) throw new Error('Credenciales inválidas');
+
+  // Validar que el usuario no esté desactivado.
+  if (user.status === 'inactive' || user.isActive === false) {
+    throw new Error('Tu cuenta ha sido desactivada. Contacta al administrador.');
   }
 
-  //--------BUSCAR USUARIO-----------------------------
-  const userRef = db.collection('users');
+  // Comparar la contraseña proporcionada con el hash almacenado.
+  const isMatch = await bcrypt.compare(userData.password, user.password);
+  if (!isMatch) throw new Error('Credenciales inválidas');
 
-  const snapshot = await userRef
-    .where('email', '==', email)
-    .get();
-  
-  //-------VERIFICAR EXISTENCIA-------------------------
-  if (snapshot.empty) {
-    throw new Error('Credenciales invalidas');
-  }
-
-  //------OBTENER USUARIO-------------------------------
-  const userDoc = snapshot.docs[0];
-
-  const user = {
-    id: userDoc.id,
-    ...userDoc.data()
-  };
-
-  //------COMPARAR PASSWORD-----------------------------
-  const isMatch = await bcrypt.compare(
-    password,
-    user.password
+  // Generar JWT de acceso y refresh token.
+  const accessToken = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' }
   );
 
-  if(!isMatch) {
-    throw new Error('Credenciales invalidas')
-  }
-
-  //-------GENERAR TOKEN--------------------------------
-  const token = jwt.sign(
-    {
-      id: user.id,
-      email: user.email,
-      role: user.role
-    },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: '3h'
-    }
+  const refreshToken = jwt.sign(
+    { id: user.id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: '7d' }
   );
 
   return {
-    token,
-    user: {
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role: user.role
-    }
+    accessToken,
+    refreshToken,
+    user: { id: user.id, name: user.name, email: user.email, role: user.role }
   };
 };
 
-
 const changePassword = async (userId, currentPassword, newPassword) => {
-  const userRef = db.collection('users').doc(userId);
-  const userDoc = await userRef.get();
+  // Validar los parámetros del cambio de contraseña.
+  const { error } = validateChangePassword(currentPassword, newPassword);
+  if (error) throw new Error(error);
 
-  if (!userDoc.exists) {
-    throw new Error('Usuario no encontrado');
-  }
+  // Buscar usuario activo por su id.
+  const user = await authRepository.findById(userId);
+  if (!user) throw new Error('Usuario no encontrado');
 
-  const user = userDoc.data();
-
-  //-------Verificar que la contraseña actual sea correcta---------------
+  // Verificar la contraseña actual antes de actualizar.
   const isMatch = await bcrypt.compare(currentPassword, user.password);
-  if (!isMatch) {
-    throw new Error('La contraseña actual es incorrecta');
-  }
+  if (!isMatch) throw new Error('La contraseña actual es incorrecta');
 
-  //-------Encriptar la nueva contraseña---------------------------------
+  // Hashear la nueva contraseña y actualizar el registro.
   const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-
-  //-------Actualizar en la base de datos--------------------------------
-  await userRef.update({
-    password: hashedNewPassword
-  });
+  await authRepository.updatePassword(userId, hashedNewPassword);
 
   return { message: 'Contraseña actualizada correctamente' };
 };
 
-module.exports = {
-  register,
-  login,
-  changePassword
+const refreshTokenService = async (oldRefreshToken) => {
+  // Asegurarse de que se recibió un refresh token.
+  if (!oldRefreshToken) throw new Error('Refresh token no proporcionado');
+
+  // Verificar y decodificar el refresh token.
+  const decoded = jwt.verify(oldRefreshToken, process.env.JWT_REFRESH_SECRET);
+  const user = await authRepository.findById(decoded.id);
+
+  if (!user) throw new Error('El usuario ya no existe');
+  if (user.status === 'inactive' || user.isActive === false) {
+    throw new Error('Cuenta desactivada');
+  }
+
+  // Generar un nuevo token de acceso válido por 1 hora.
+  const newAccessToken = jwt.sign(
+    { id: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '1h' }
+  );
+
+  return { accessToken: newAccessToken };
 };
+
+module.exports = { register, login, changePassword, refreshTokenService };
