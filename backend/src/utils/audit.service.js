@@ -1,4 +1,4 @@
-const db = require('../../config/firebase');
+const db = require('../config/firebase');
 
 // Función para crear un log de auditoría
 const createAuditLog = async (userId, action, details = {}) => {
