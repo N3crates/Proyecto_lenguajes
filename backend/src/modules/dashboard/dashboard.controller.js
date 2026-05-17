@@ -26,11 +26,11 @@ const getSummary = async (req, res) => {
       // Supongamos que tu compañero guardará la nota en un campo llamado 'score' o 'grade'
       const sum = gradesSnapshot.docs.reduce((acc, doc) => {
         const data = doc.data();
-        return acc + (data.score || data.grade || 0);
+        return acc + (data.finalGrade || 0);
       }, 0);
       
       // Redondeamos a un decimal (ej. 8.5)
-      generalAverage = Math.round((sum / totalGrades) * 10) / 10; 
+      generalAverage = Number((sum / totalGrades).toFixed(2)); 
     }
 
     // 3. Obtener los últimos 5 logs de actividad para el feed del Dashboard

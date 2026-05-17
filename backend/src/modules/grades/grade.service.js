@@ -16,7 +16,7 @@ const createGrade = async(gradeData) => {
 
     gradeData.finalGrade = Number(finalGrade.toFixed(2))
     gradeData.status = true
-    gradeData.createdAt = new DataTransfer()
+    gradeData.createdAt = new Date()
 
     return await repository.createGrade(gradeData)
 }
