@@ -2,45 +2,72 @@ const db = require('../../config/firebase');
 
 const getSummary = async (req, res) => {
   try {
-    // Usamos Promiese.all para hacer todas las consultas al mismo tiempo y que sea rapidísimo
+    // 1. Ejecutamos los conteos físicos de las colecciones principales en paralelo
     const [
       usersSnapshot, 
       rolesSnapshot,
       teachersSnapshot,
-      studentsSnapshot
+      studentsSnapshot,
+      groupsSnapshot,
+      gradesSnapshot
     ] = await Promise.all([
       db.collection('users').count().get(),
       db.collection('roles').count().get(),
-      db.collection('teachers').count().get(), // Colección del Integrante 2
-      db.collection('students').count().get()  // Colección del Integrante 3
+      db.collection('teachers').count().get(), // Integrante 2
+      db.collection('students').count().get(), // Integrante 3
+      db.collection('groups').count().get(),   // Integrante 2
+      db.collection('grades').get()            // Integrante 3 (Traemos documentos para promediar)
     ]);
 
-    // Obtenemos un par de logs recientes para mostrar actividad reciente en el dashboard
+    // 2. Calcular el promedio general de la escuela de forma segura
+    let generalAverage = 0;
+    if (!gradesSnapshot.empty) {
+      const totalGrades = gradesSnapshot.docs.length;
+      // Supongamos que tu compañero guardará la nota en un campo llamado 'score' o 'grade'
+      const sum = gradesSnapshot.docs.reduce((acc, doc) => {
+        const data = doc.data();
+        return acc + (data.score || data.grade || 0);
+      }, 0);
+      
+      // Redondeamos a un decimal (ej. 8.5)
+      generalAverage = Math.round((sum / totalGrades) * 10) / 10; 
+    }
+
+    // 3. Obtener los últimos 5 logs de actividad para el feed del Dashboard
     const recentActivitySnap = await db.collection('audit_logs')
       .orderBy('timestamp', 'desc')
       .limit(5)
       .get();
       
     const recentActivity = recentActivitySnap.docs.map(doc => ({
+      id: doc.id,
       action: doc.data().action,
+      user: doc.data().user || 'Sistema',
       date: doc.data().timestamp.toDate()
     }));
 
+    // 4. Respuesta estandarizada para tu diseño en React
     res.status(200).json({
       success: true,
-      message: 'Resumen de dashboard obtenido',
+      message: 'Resumen del dashboard escolar obtenido correctamente',
       data: {
         stats: {
           totalUsers: usersSnapshot.data().count,
           totalRoles: rolesSnapshot.data().count,
           totalTeachers: teachersSnapshot.data().count,
-          totalStudents: studentsSnapshot.data().count
+          totalStudents: studentsSnapshot.data().count,
+          totalGroups: groupsSnapshot.data().count,
+          generalAverage: generalAverage
         },
         recentActivity: recentActivity
       }
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ 
+      success: false, 
+      message: 'Error al compilar las estadísticas del dashboard',
+      error: error.message 
+    });
   }
 };
 
