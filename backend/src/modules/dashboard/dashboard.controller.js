@@ -13,13 +13,13 @@ const getSummary = async (req, res) => {
     ] = await Promise.all([
       db.collection('users').count().get(),
       db.collection('roles').count().get(),
-      db.collection('teachers').count().get(), // Integrante 2
-      db.collection('students').count().get(), // Integrante 3
-      db.collection('groups').count().get(),   // Integrante 2
-      db.collection('grades').get()            // Integrante 3 (Traemos documentos para promediar)
+      db.collection('teachers').count().get(), 
+      db.collection('students').count().get(), 
+      db.collection('groups').count().get(),   
+      db.collection('grades').get()            //Traemos documentos para promediar
     ]);
 
-    // 2. Calcular el promedio general de la escuela de forma segura
+    // 2. Calcular el promedio general de la escuela
     let generalAverage = 0;
     if (!gradesSnapshot.empty) {
       const totalGrades = gradesSnapshot.docs.length;
