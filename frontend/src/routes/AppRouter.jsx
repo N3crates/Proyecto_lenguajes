@@ -6,6 +6,8 @@ import Dashboard from '../pages/Dashboard';
 import Students from '../pages/Students';
 import ProtectedRoute from './ProtectedRoute'; 
 import Users from '../pages/Users';
+import Teachers from '../pages/Teachers';
+
 
 const AppRouter = () => {
   return (
@@ -19,6 +21,7 @@ const AppRouter = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/students" element={<Students />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/teachers" element={<Teachers />} />
       </Route>
 
       {/* Si escriben una ruta que no existe, los mandamos al login */}
