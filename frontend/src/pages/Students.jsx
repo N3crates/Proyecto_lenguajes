@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import "./Auth.css"
+import "../styles/Auth.css";
 import  {getStudents } from "../services/studentService";
 
 const Students = () => {
