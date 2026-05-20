@@ -9,6 +9,7 @@ import Users from '../pages/Users';
 import Teachers from '../pages/Teachers';
 import Subjects from '../pages/Subjects';
 import Groups from '../pages/Groups';
+import Enrollments from '../pages/Enrollments';
 
 const AppRouter = () => {
   return (
@@ -21,6 +22,7 @@ const AppRouter = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/students" element={<Students />} />
+        <Route path="/enrollments" element={<Enrollments />} />
         <Route path="/users" element={<Users />} />
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/subjects" element={<Subjects />} />

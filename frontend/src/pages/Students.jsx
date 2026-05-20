@@ -70,14 +70,13 @@ function Students() {
   }
 
   return (
-
     <div className="module-page">
         {/* HEADER */}
         <div className="module-header">
             <h1 className="module-title">Gestión de Alumnos 🎓</h1>
             <p className="module-subtitle">Administra y visualiza los alumnos registrados</p>
             <button className="auth-button" onClick={() => navigate("/dashboard")}>Regresar</button>
-            <button className="auth-button" onClick={() => setshowForm(!showForm)} onSubmit={handleSubmit} style={{ width: "220px" }}>+ Nuevo Alumno</button>
+            <button className="auth-button" onClick={() => setshowForm(!showForm)} onSubmit={handleSubmit}>+ Nuevo Alumno</button>
         </div>
             {/*Formulario*/}
             {showForm && (
@@ -163,4 +162,4 @@ function Students() {
 }
 
 
-export default Students;
+export default Students

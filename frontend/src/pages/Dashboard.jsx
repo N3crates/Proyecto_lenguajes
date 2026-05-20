@@ -33,6 +33,7 @@ const navByRole = {
     { label: "Auditoría",        icon: "clipboard", section: "Administración", path: "/audit" }, 
     { label: "Docentes",         icon: "user",      section: "Escolar", path: "/teachers" }, 
     { label: "Alumnos",          icon: "users",     section: "Escolar", path: "/students" }, 
+    { label: "Inscripción",      icon: "clipboard", section: "Escolar", path: "/enrollments"},
     { label: "Materias",         icon: "book",      section: "Académico", path: "/subjects" }, 
     { label: "Grupos",           icon: "book",      section: "Académico", path: "/groups" }, 
     { label: "Calificaciones",   icon: "star",      section: "Académico", path: "/grades" }, 
