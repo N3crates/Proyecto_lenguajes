@@ -1,11 +1,13 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useContext } from "react";
 import axios from "axios";
-import "./Auth.css";
+import { AuthContext } from "../context/AuthContext";
+import "../styles/Auth.css";
 
 function Login() {
 
   const navigate = useNavigate();
+  const { login } = useContext(AuthContext);
 
   const [formData, setFormData] = useState({
     email: "",
@@ -27,8 +29,7 @@ function Login() {
     // Accedemos a response.data.data porque tu controlador envía un objeto con la llave "data"
     const loginData = response.data.data; 
 
-    localStorage.setItem("token", loginData.token);
-    localStorage.setItem("user", JSON.stringify(loginData.user));
+    login(loginData.user, loginData.accessToken);
 
     navigate("/dashboard");
 
