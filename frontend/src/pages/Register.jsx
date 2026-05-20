@@ -1,10 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import axios from "axios";
-import "./Auth.css";
+import "../styles/Auth.css";
 
 function Register() {
-
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -15,113 +14,76 @@ function Register() {
 
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  
+  // 1. NUEVO ESTADO PARA BLOQUEAR EL BOTÓN
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
-
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
-
   };
 
   const handleSubmit = async (e) => {
-
     e.preventDefault();
 
+    // 2. EVITAR DOBLE ENVÍO
+    if (loading) return;
+
+    setLoading(true); // Bloqueamos la UI
     setErrorMessage("");
     setSuccessMessage("");
 
     try {
-
       const response = await axios.post(
         "http://localhost:3000/api/auth/register",
         formData
       );
 
-      // MENSAJE DEL BACKEND
       setSuccessMessage(response.data.message);
 
-      // LIMPIAR FORMULARIO
       setFormData({
         name: "",
         email: "",
         password: ""
       });
 
-      // REDIRECCIONAR DESPUÉS DE 2 SEGUNDOS
       setTimeout(() => {
         navigate("/");
       }, 2000);
 
     } catch (error) {
-
       setErrorMessage(
-        error.response?.data?.message ||
-        "Error al registrarse"
+        error.response?.data?.message || "Error al registrarse"
       );
-
       console.log(error);
+    } finally {
+      // 3. LIBERAMOS EL BOTÓN CUANDO TERMINE (ya sea éxito o error)
+      setLoading(false);
     }
   };
 
   return (
     <div className="auth-container">
-
-      {/* PANEL IZQUIERDO */}
       <div className="auth-left">
-
         <div className="auth-content">
+          <h1>Crear Cuenta ᓚᘏᗢ</h1>
+          <p className="auth-subtitle">Regístrate para comenzar en EduControl</p>
 
-          <h1>
-            Crear Cuenta ᓚᘏᗢ
-          </h1>
-
-          <p className="auth-subtitle">
-            Regístrate para comenzar en EduControl
-          </p>
-
-          {/* TABS */}
           <div className="auth-tabs">
-
             <Link to="/">
-              <button>
-                Iniciar Sesión
-              </button>
+              <button>Iniciar Sesión</button>
             </Link>
-
-            <button className="active">
-              Registrarse
-            </button>
-
+            <button className="active">Registrarse</button>
           </div>
 
-          {/* MENSAJE EXITOSO */}
-          {successMessage && (
-            <div className="success-message">
-              {successMessage}
-            </div>
-          )}
+          {successMessage && <div className="success-message">{successMessage}</div>}
+          {errorMessage && <div className="error-message">{errorMessage}</div>}
 
-          {/* MENSAJE ERROR */}
-          {errorMessage && (
-            <div className="error-message">
-              {errorMessage}
-            </div>
-          )}
-
-          {/* FORMULARIO */}
-          <form
-            className="auth-form"
-            onSubmit={handleSubmit}
-          >
-
+          <form className="auth-form" onSubmit={handleSubmit}>
             <div className="form-group">
-
-              <label>
-                Nombre
-              </label>
-
+              <label>Nombre</label>
               <input
                 type="text"
                 name="name"
@@ -130,15 +92,9 @@ function Register() {
                 onChange={handleChange}
                 required
               />
-
             </div>
-
             <div className="form-group">
-
-              <label>
-                Correo electrónico
-              </label>
-
+              <label>Correo electrónico</label>
               <input
                 type="email"
                 name="email"
@@ -147,15 +103,9 @@ function Register() {
                 onChange={handleChange}
                 required
               />
-
             </div>
-
             <div className="form-group">
-
-              <label>
-                Contraseña
-              </label>
-
+              <label>Contraseña</label>
               <input
                 type="password"
                 name="password"
@@ -164,48 +114,29 @@ function Register() {
                 onChange={handleChange}
                 required
               />
-
             </div>
 
-            <button
-              type="submit"
+            {/* 4. APLICAMOS EL BLOQUEO VISUAL */}
+            <button 
+              type="submit" 
               className="auth-button"
+              disabled={loading}
+              style={{ opacity: loading ? 0.7 : 1, cursor: loading ? 'not-allowed' : 'pointer' }}
             >
-              Registrarse
+              {loading ? "Procesando..." : "Registrarse"}
             </button>
-
           </form>
-
           <p className="auth-footer">
-
-            ¿Ya tienes cuenta?
-
-            <Link to="/">
-              Iniciar sesión
-            </Link>
-
+            ¿Ya tienes cuenta? <Link to="/">Iniciar sesión</Link>
           </p>
-
         </div>
-
       </div>
-
-      {/* PANEL DERECHO */}
       <div className="auth-right">
-
         <div className="overlay">
-
           <h2>EduControl</h2>
-
-          <p>
-            Administra tu información académica
-            de manera eficiente.
-          </p>
-
+          <p>Administra tu información académica de manera eficiente.</p>
         </div>
-
       </div>
-
     </div>
   );
 }
