@@ -6,7 +6,7 @@ import {
   getStudents
 } from "../services/studentService";
 
-import "./Auth.css";
+import "../styles/Auth.css";
 
 
 function Students() {
