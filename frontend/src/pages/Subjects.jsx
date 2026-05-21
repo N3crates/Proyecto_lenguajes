@@ -24,6 +24,7 @@ export default function Subjects() {
     }
   };
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => { fetchSubjects(); }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });

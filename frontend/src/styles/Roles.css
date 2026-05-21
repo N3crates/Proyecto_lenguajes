@@ -1,0 +1,198 @@
+/* Roles.css */
+
+/* ── Columna de tarjetas ─────────────────────────────────────────────────── */
+.rm-cards-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Wrapper de fila (tarjeta + panel al lado) */
+.rm-row-wrap {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+/* Cuando el panel está abierto, la tarjeta toma 55% y el panel 45% */
+.rm-row-open .rm-role-card   { flex: 55; min-width: 0; }
+.rm-row-open .rm-inline-panel { flex: 45; min-width: 0; }
+/* Cuando está cerrado la tarjeta ocupa todo */
+.rm-row-wrap:not(.rm-row-open) .rm-role-card { flex: 1; }
+
+@media (max-width: 900px) {
+  .rm-row-wrap     { flex-direction: column; }
+  .rm-row-open .rm-role-card,
+  .rm-row-open .rm-inline-panel { flex: unset; width: 100%; }
+}
+
+/* ── Tarjeta de rol ──────────────────────────────────────────────────────── */
+.rm-role-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 22px 24px;
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+.rm-role-card.rm-sk { pointer-events: none; }
+.rm-role-card.rm-selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(79,110,247,0.12), var(--shadow);
+}
+
+/* Ícono */
+.rm-icon-wrap {
+  width: 48px; height: 48px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.rm-icon-wrap .al-icon { width: 20px; height: 20px; color: #fff; opacity: 1; }
+.rm-red    { background: linear-gradient(135deg, #f87171, #dc2626); }
+.rm-indigo { background: linear-gradient(135deg, #818cf8, #4f46e5); }
+.rm-teal   { background: linear-gradient(135deg, #2dd4bf, #0f766e); }
+.rm-slate  { background: linear-gradient(135deg, #94a3b8, #475569); }
+
+/* Cuerpo */
+.rm-body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+
+.rm-top { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.rm-role-name {
+  font-family: 'Sora', sans-serif;
+  font-size: 16px; font-weight: 700; color: var(--text);
+}
+.rm-role-key {
+  font-family: 'Courier New', monospace;
+  font-size: 11px; font-weight: 600;
+  background: var(--main-bg); color: var(--text-2);
+  border: 1px solid var(--border);
+  padding: 2px 8px; border-radius: 100px;
+}
+.rm-desc     { font-size: 13.5px; color: var(--text-2); line-height: 1.5; }
+.rm-no-perms { font-size: 13px;   color: var(--text-2); font-style: italic; }
+
+/* Permisos */
+.rm-perms { display: flex; flex-wrap: wrap; gap: 6px; }
+.rm-perm-tag {
+  font-size: 11.5px; font-weight: 600;
+  padding: 3px 10px; border-radius: 100px; white-space: nowrap;
+}
+.rm-perm-tag.rm-red    { background: rgba(248,113,113,0.12); color: #b91c1c; }
+.rm-perm-tag.rm-indigo { background: rgba(99,102,241,0.12);  color: #4338ca; }
+.rm-perm-tag.rm-teal   { background: rgba(45,212,191,0.12);  color: #0f766e; }
+.rm-perm-tag.rm-slate  { background: rgba(100,116,139,0.12); color: #475569; }
+
+/* Footer de tarjeta */
+.rm-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  flex-wrap: wrap; gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.rm-count {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 13px; color: var(--text-2); font-weight: 500;
+}
+.rm-count .al-icon { width: 14px; height: 14px; }
+.rm-count strong   { color: var(--text); font-weight: 700; }
+.rm-footer-btns { display: flex; align-items: center; gap: 8px; }
+.rm-view-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+/* ── Panel inline de usuarios ────────────────────────────────────────────── */
+.rm-inline-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  /* Misma altura máxima que la tarjeta para no sobresalir */
+  max-height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rm-panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+.rm-panel-title {
+  display: flex; align-items: center; gap: 8px;
+  font-family: 'Sora', sans-serif;
+  font-size: 13.5px; font-weight: 700; color: var(--text);
+}
+.rm-panel-dot {
+  width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
+}
+.rm-panel-dot.rm-red    { background: #f87171; }
+.rm-panel-dot.rm-indigo { background: #818cf8; }
+.rm-panel-dot.rm-teal   { background: #2dd4bf; }
+.rm-panel-dot.rm-slate  { background: #94a3b8; }
+
+.rm-user-list {
+  list-style: none;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
+}
+.rm-user-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 18px;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.12s;
+}
+.rm-user-item:last-child { border-bottom: none; }
+.rm-user-item:hover { background: #f8f9fd; }
+
+.rm-u-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #4f6ef7, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif;
+  font-size: 10px; font-weight: 700; color: #fff;
+  flex-shrink: 0;
+}
+.rm-u-info {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.rm-u-name  { font-size: 13px; font-weight: 600; color: var(--text); }
+.rm-u-email { font-size: 12px; color: var(--text-2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ── Checkboxes de permisos (modal) ──────────────────────────────────────── */
+.rm-perm-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+}
+@media (max-width: 480px) { .rm-perm-grid { grid-template-columns: 1fr; } }
+
+.rm-perm-check {
+  display: flex; align-items: center; gap: 9px;
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--main-bg);
+  cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--text-2);
+  transition: all 0.15s;
+  user-select: none;
+}
+.rm-perm-check:hover { background: var(--accent-light); border-color: #c7d0fb; color: var(--text); }
+.rm-perm-check.checked { background: var(--accent-light); border-color: var(--accent); color: var(--accent); font-weight: 600; }
+.rm-perm-box {
+  width: 16px; height: 16px; border-radius: 4px;
+  border: 2px solid var(--border); flex-shrink: 0;
+  transition: all 0.15s; background: #fff; position: relative;
+}
+.rm-perm-check.checked .rm-perm-box { background: var(--accent); border-color: var(--accent); }
+.rm-perm-check.checked .rm-perm-box::after {
+  content: ''; position: absolute;
+  top: 1px; left: 4px;
+  width: 4px; height: 8px;
+  border: 2px solid #fff;
+  border-top: none; border-left: none;
+  transform: rotate(45deg);
+}
+
+.rm-modal-desc { font-size: 13.5px; color: var(--text-2); line-height: 1.5; }
+.rm-hint       { font-size: 12px;   color: var(--text-2); margin-top: 4px; }

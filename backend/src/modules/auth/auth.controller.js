@@ -1,4 +1,5 @@
 const authService = require('./auth.service');
+const db = require('../../config/firebase');
 
 
 const register = async(req, res) => {
@@ -39,12 +40,36 @@ const login = async(req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    // Los datos ya vienen del middleware en req.user
+    // 1. Obtenemos el ID del usuario desde el token (inyectado por el middleware)
+    const uid = req.user.id || req.user.uid;
+
+    if (!uid) {
+      return res.status(401).json({ success: false, message: 'Usuario no autenticado' });
+    }
+
+    // 2. Buscamos el documento fresco en Firestore
+    const userDoc = await db.collection('users').doc(uid).get();
+
+    if (!userDoc.exists) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+    }
+
+    const userData = userDoc.data();
+
+    // 3. Devolvemos la información completa (sin la contraseña)
     res.status(200).json({
       success: true,
-      data: req.user 
+      data: {
+        uid: userDoc.id,
+        name: userData.name || '',
+        email: userData.email,
+        role: userData.role || 'user',
+        status: userData.status || 'active',
+        createdAt: userData.createdAt
+      }
     });
   } catch (error) {
+    console.error('Error al obtener el perfil de Firestore:', error);
     res.status(500).json({
       success: false,
       message: 'Error al obtener el perfil'

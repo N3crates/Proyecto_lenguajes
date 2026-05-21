@@ -1,5 +1,5 @@
 const roleRepository = require('./role.repository');
-const { validateRoleInput } = require('./role.validation');
+const  validateRoleInput  = require('./role.validation');
 const { createAuditLog } = require('../../utils/audit.service');
 
 // Obtener todos los roles

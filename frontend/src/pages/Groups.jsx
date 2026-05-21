@@ -32,6 +32,7 @@ export default function Groups() {
     }
   };
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => { fetchAll(); }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
