@@ -24,7 +24,8 @@ export default function Teachers() {
       setLoading(false);
     }
   };
-
+  
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => { fetchTeachers(); }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });

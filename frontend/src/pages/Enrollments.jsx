@@ -21,7 +21,7 @@ function Enrollments() {
             setLoading(false)
         }
     }
-
+    /* eslint-disable react-hooks/set-state-in-effect */
     useEffect(() => {loadEnrollments()}, [])
 
     const handleChange = (e) => {

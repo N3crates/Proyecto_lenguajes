@@ -6,7 +6,9 @@ const getPermissions = (req, res) => {
     { id: 'view_audit', name: 'Ver Auditoría', module: 'Admin' },
     { id: 'manage_teachers', name: 'Gestionar Docentes', module: 'Escolar' },
     { id: 'manage_students', name: 'Gestionar Alumnos', module: 'Escolar' },
-    { id: 'manage_grades', name: 'Gestionar Calificaciones', module: 'Académico' }
+    { id: 'manage_grades', name: 'Gestionar Calificaciones', module: 'Académico' },
+    { id: 'manage_groups', name: 'Gestionar Grupos', module: 'Académico' },
+    { id: 'view_dashboard', name: 'Ver Dashboard', module: 'General' }
   ];
 
   res.status(200).json({

@@ -10,6 +10,9 @@ import Teachers from '../pages/Teachers';
 import Subjects from '../pages/Subjects';
 import Groups from '../pages/Groups';
 import Enrollments from '../pages/Enrollments';
+import Profile from '../pages/Profile';
+import Roles from '../pages/Roles';
+import Audit from '../pages/Audit';
 
 const AppRouter = () => {
   return (
@@ -27,6 +30,9 @@ const AppRouter = () => {
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/subjects" element={<Subjects />} />
         <Route path="/groups" element={<Groups />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/roles" element={<Roles />} />
+        <Route path="/audit" element={<Audit />} />
       </Route>
 
       {/* Si escriben una ruta que no existe, los mandamos al login */}

@@ -21,7 +21,7 @@ function Students() {
         setLoading(false)
     }
   }
-
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {loadStudents()}, [])
 
   const handleChange = (e) => {
