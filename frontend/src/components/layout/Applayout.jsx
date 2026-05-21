@@ -41,6 +41,7 @@ const navByRole = {
     { label: "Materias",         icon: "book",      path: "/subjects",   section: "Académico" },
     { label: "Grupos",           icon: "book",      path: "/groups",     section: null },
     { label: "Calificaciones",   icon: "star",      path: "/grades",     section: null },
+    { label: "Inscripciones",     icon: "calendar",  path: "/enrollments",section: null },
   ],
   teacher: [
     { label: "Inicio",         icon: "home",  path: "/dashboard",       section: null },

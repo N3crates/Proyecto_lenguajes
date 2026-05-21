@@ -1,8 +1,8 @@
 import axios from "axios"
 
-const API_URL = "http://localhost:3000/api/students"
+const API_URL = "http://localhost:3000/api/enrollments"
 
-export const getStudents = async() => {
+export const getEnrollments = async() => {
     try {
         const response = await axios.get(API_URL)
         return response.data
@@ -12,9 +12,9 @@ export const getStudents = async() => {
     }
 }
 
-export const createStudent = async(studentData) => {
+export const createEnrollment = async(enrollmentData) => {
     try {
-        const response = await axios.post(API_URL, studentData)
+        const response = await axios.post(API_URL, enrollmentData)
         return response.data
     } catch (error) {
         console.log(error)
@@ -22,16 +22,16 @@ export const createStudent = async(studentData) => {
     }
 }
 
-export const updateStudent = async(id, studentData) => {
+export const updateEnrollment = async(id, enrollmentData) => {
     try {
-        const response = await axios.put(`${API_URL}/${id}`, studentData)
+        const response = await axios.put(`${API_URL}/${id}`, enrollmentData)
         return response.data
     } catch (error) {
         console.error(error)
     }
 }
 
-export const deleteStudent = async(id) => {
+export const deleteEnrollment = async(id) => {
     try {
         const response = await axios.delete(`${API_URL}/${id}`)
         return response.data

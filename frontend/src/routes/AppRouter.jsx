@@ -9,9 +9,10 @@ import Users from '../pages/Users';
 import Teachers from '../pages/Teachers';
 import Subjects from '../pages/Subjects';
 import Groups from '../pages/Groups';
-import Profile from "../pages/Profile";
-import Roles   from "../pages/Roles";
-import Audit from "../pages/Audit";
+import Enrollments from '../pages/Enrollments';
+import Profile from '../pages/Profile';
+import Roles from '../pages/Roles';
+import Audit from '../pages/Audit';
 
 const AppRouter = () => {
   return (
@@ -24,13 +25,13 @@ const AppRouter = () => {
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/students" element={<Students />} />
+        <Route path="/enrollments" element={<Enrollments />} />
         <Route path="/users" element={<Users />} />
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/subjects" element={<Subjects />} />
         <Route path="/groups" element={<Groups />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/users"   element={<Users />} />
-        <Route path="/roles"   element={<Roles />} />
+        <Route path="/roles" element={<Roles />} />
         <Route path="/audit" element={<Audit />} />
       </Route>
 

@@ -1,359 +1,165 @@
 import { useEffect, useState } from "react";
-
-
-
-import {
-  getStudents
-} from "../services/studentService";
-
-import "../styles/Auth.css";
-
+import { getStudents, createStudent, updateStudent, deleteStudent } from "../services/studentService";
+import "../styles/Teachers.css";
+import { useNavigate } from "react-router-dom";
 
 function Students() {
+  const navigate = useNavigate()
+  const [students, setStudents] = useState([])
+  const [showForm, setshowForm] = useState(false)
+  const [editingStudentId, setEditingStudentId] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [formData, setFormData] = useState({ name: "", email: "", studentNumber: "", career: "", semester: "" })
+  
+  const loadStudents = async() => {
+    try {
+        const response = await getStudents()
+        setStudents(response.data)
+        setLoading(false)
+    } catch (error) {
+        console.log(error)
+        setLoading(false)
+    }
+  }
+  /* eslint-disable react-hooks/set-state-in-effect */
+  useEffect(() => {loadStudents()}, [])
 
-  const [students, setStudents] =
-    useState([]);
+  const handleChange = (e) => {
+    setFormData({
+        ...formData,
+        [e.target.name]: e.target.value
+    })
+  }
 
+  const handleEdit = (student) => {
+    setshowForm(true)
+    setEditingStudentId(student.id)
+    setFormData({name: student.name || "", email: student.email || "", studentNumber: student.studentNumber || "", career: student.career || "", semester: student.semester || ""})
+  }
 
-  useEffect(() => {
+  const handleDelete = async(id) => {
+    const confirmDelete = window.confirm("¿Deseas dar de baja este alumno?")
+    if(!confirmDelete) return
+    try {
+        await deleteStudent(id)
+        setStudents(prevStudents => prevStudents.map(student => student.id === id ? {...student, status: false} : student))
+    } catch (error) {
+        console.error(error)
+    }
+  }
 
-    const fetchStudents = async () => {
+  const handleSubmit = async(e) => {
+    e.preventDefault()
+    try {
+        if(editingStudentId){
+            await updateStudent(editingStudentId, formData)
+        }else{
+        await createStudent(formData)}
+        await loadStudents()
+        setFormData({ name: "", email: "", studentNumber: "", career: "", semester: "" })
+        setEditingStudentId(null)
+        setshowForm(false)
+    } catch (error) {
+        console.log(error)
+    }
+  }
 
-      try {
-
-        const response =
-          await getStudents();
-
-        setStudents(response.data);
-
-      } catch (error) {
-
-        console.log(error);
-
-      }
-
-    };
-
-    fetchStudents();
-
-  }, []);
-
+  const handleCancel = () => {
+    setshowForm(false)
+    setFormData({ name: "", email: "", studentNumber: "", career: "", semester: "" })
+  }
 
   return (
-
-    <div
-      className="auth-container"
-      style={{
-        background: "#f1f5f9"
-      }}
-    >
-
-      {/* LEFT PANEL */}
-
-      <div
-        className="auth-left"
-        style={{
-          width: "70%",
-          alignItems: "flex-start",
-          paddingTop: "50px",
-          background: "#f1f5f9"
-        }}
-      >
-
-        <div
-          className="auth-content"
-          style={{
-            maxWidth: "100%"
-          }}
-        >
-
-          {/* HEADER */}
-
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: "40px"
-            }}
-          >
-
-            <div>
-
-              <h1>
-                Gestión de Alumnos 🎓
-              </h1>
-
-              <p className="auth-subtitle">
-                Administra y visualiza los alumnos registrados
-              </p>
-
-            </div>
-
-            <button
-              className="auth-button"
-              style={{
-                width: "220px"
-              }}
-            >
-
-              + Nuevo Alumno
-
-            </button>
-
-          </div>
-
-
-          {/* STATS */}
-
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns:
-                "repeat(auto-fit,minmax(220px,1fr))",
-              gap: "20px",
-              marginBottom: "35px"
-            }}
-          >
-
-            <div
-              style={{
-                background: "white",
-                padding: "25px",
-                borderRadius: "18px",
-                boxShadow:
-                  "0 10px 25px rgba(0,0,0,0.05)"
-              }}
-            >
-
-              <h3
-                style={{
-                  color: "#2563eb",
-                  fontSize: "38px"
-                }}
-              >
-                {students.length}
-              </h3>
-
-              <p
-                style={{
-                  color: "#64748b",
-                  marginTop: "8px"
-                }}
-              >
-                Alumnos activos
-              </p>
-
-            </div>
-
-          </div>
-
-
-          {/* STUDENTS */}
-
-          {
-            students.length === 0
-            ? (
-
-              <div
-                style={{
-                  background: "white",
-                  padding: "30px",
-                  borderRadius: "18px",
-                  textAlign: "center",
-                  color: "#64748b",
-                  boxShadow:
-                    "0 10px 25px rgba(0,0,0,0.05)"
-                }}
-              >
-
-                No hay alumnos registrados
-
-              </div>
-
-            )
-            : (
-
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns:
-                    "repeat(auto-fill,minmax(320px,1fr))",
-                  gap: "25px"
-                }}
-              >
-
-                {
-                  students.map(student => (
-
-                    <div
-                      key={student.id}
-                      style={{
-                        background: "white",
-                        borderRadius: "22px",
-                        padding: "28px",
-                        boxShadow:
-                          "0 10px 25px rgba(0,0,0,0.06)",
-                        transition: "0.3s"
-                      }}
-                    >
-
-                      {/* TOP */}
-
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "15px",
-                          marginBottom: "20px"
-                        }}
-                      >
-
-                        <div
-                          style={{
-                            width: "60px",
-                            height: "60px",
-                            borderRadius: "50%",
-                            background: "#2563eb",
-                            display: "flex",
-                            alignItems: "center",
-                            justifyContent: "center",
-                            color: "white",
-                            fontSize: "22px",
-                            fontWeight: "bold"
-                          }}
-                        >
-
-                          {
-                            student.name
-                              ?.charAt(0)
-                              ?.toUpperCase()
-                          }
-
-                        </div>
-
-                        <div>
-
-                          <h3
-                            style={{
-                              color: "#1e293b",
-                              marginBottom: "5px"
-                            }}
-                          >
-                            {student.name}
-                          </h3>
-
-                          <p
-                            style={{
-                              color: "#64748b",
-                              fontSize: "14px"
-                            }}
-                          >
-                            {student.career}
-                          </p>
-
-                        </div>
-
-                      </div>
-
-
-                      {/* INFO */}
-
-                      <div
-                        style={{
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: "12px",
-                          marginBottom: "25px"
-                        }}
-                      >
-
-                        <p
-                          style={{
-                            color: "#475569"
-                          }}
-                        >
-                          📧 {student.email}
-                        </p>
-
-                        <p
-                          style={{
-                            color: "#475569"
-                          }}
-                        >
-                          🎓 {student.studentNumber}
-                        </p>
-
-                        <p
-                          style={{
-                            color: "#475569"
-                          }}
-                        >
-                          📚 Semestre {student.semester}
-                        </p>
-
-                      </div>
-
-
-                      {/* BUTTONS */}
-
-                      <div
-                        style={{
-                          display: "flex",
-                          gap: "12px"
-                        }}
-                      >
-
-                        <button
-                          className="auth-button"
-                          style={{
-                            flex: 1,
-                            padding: "12px",
-                            fontSize: "14px"
-                          }}
-                        >
-
-                          Editar
-
-                        </button>
-
-                        <button
-                          style={{
-                            flex: 1,
-                            border: "none",
-                            borderRadius: "10px",
-                            background: "#ef4444",
-                            color: "white",
-                            fontWeight: "bold",
-                            cursor: "pointer"
-                          }}
-                        >
-
-                          Eliminar
-
-                        </button>
-
-                      </div>
-
-                    </div>
-
-                  ))
-                }
-
-              </div>
-
-            )
-          }
-
+    <div className="module-page">
+        {/* HEADER */}
+        <div className="module-header">
+            <h1 className="module-title">Gestión de Alumnos 🎓</h1>
+            <p className="module-subtitle">Administra y visualiza los alumnos registrados</p>
+            <button className="auth-button" onClick={() => navigate("/dashboard")}>Regresar</button>
+            <button className="auth-button" onClick={() => setshowForm(!showForm)} onSubmit={handleSubmit}>+ Nuevo Alumno</button>
         </div>
-
-      </div>
-
+            {/*Formulario*/}
+            {showForm && (
+                <div className="module-form-card">
+                    <h5 className="module-form-title">{editingStudentId ? "Editar estudiante" : "Nuevo estudiante"}</h5>
+                    <form className="module-form-grid" onSubmit={handleSubmit}>
+                        <div className="module-form-group">
+                            <label className="module-label">Nombre</label>
+                            <input type="text" className="module-input" name="name" value={formData.name} onChange={handleChange} />
+                        </div>
+                        <div className="module-form-group">
+                            <label className="module-label">Correo</label>
+                            <input type="email" className="module-input" name="email" value={formData.email} onChange={handleChange} />
+                        </div>
+                        <div className="module-form-group">
+                            <label className="module-label">Matricula</label>
+                            <input type="text" className="module-input" name="studentNumber" value={formData.studentNumber} onChange={handleChange} />
+                        </div>
+                        <div className="module-form-group">
+                            <label className="module-label">Carrera</label>
+                            <input type="text" className="module-input" name="career" value={formData.career} onChange={handleChange} />
+                        </div>
+                        <div className="module-form-group">
+                            <label className="module-label">Semestre</label>
+                            <input type="number" className="module-input" name="semester" value={formData.semester} onChange={handleChange} />
+                        </div>
+                        <div className="module-form-actions">
+                            <button type="submit" className="module-btn-save">{editingStudentId ? "Actualizar Alumno" : "Guardar Alumno"}</button>
+                            <button type="button" className="module-btn-cancel" onClick={handleCancel}>Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            )}
+            {/* Tabla */}
+            {loading ? (<p className="module-loading">Cargando...</p>) : (
+                <div className="module-table-card">
+                    <table className="module-table">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Carrera</th>
+                                <th>Email</th>
+                                <th>Numero de estudiante</th>
+                                <th>Semestre</th>
+                                <th>Status</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+          {/* STUDENTS */}
+        <tbody>
+          {students.length === 0 ? (
+            <tr>
+                <td colSpan="7" className="module-empty"> No hay alumnos registrados </td>    
+            </tr>
+            ) : (
+                students.map(student => (
+                    <tr key={student.id}>
+                        <td>{student.name}</td>
+                        <td>{student.career}</td>
+                        <td>{student.email}</td>
+                        <td>{student.studentNumber}</td>
+                        <td>{student.semester}</td>
+                        <td>
+                            <span className={student.status ? "badge-active" : "badge-inactive"}>
+                                {student.status ? "😎Activo" : "😓Baja"}
+                            </span>
+                        </td>
+                        <td>
+                            <div className="module-actions">
+                                <button className="module-btn-edit" onClick={() => handleEdit(student)}>✏️Editar</button>
+                                <button className="module-btn-delete" onClick={() => handleDelete(student.id)}>❌Baja</button>
+                            </div>
+                        </td>
+                    </tr>
+                ))
+            )}
+        </tbody>
+        </table>
+        </div>
+        )}
     </div>
-
-  );
-
+  )
 }
 
 
-export default Students;
+export default Students
