@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import AppLayout from "../components/layout/Applayout";
 import api from "../api/axios";
 import "../styles/Teachers.css";
 
@@ -24,8 +25,8 @@ export default function Teachers() {
       setLoading(false);
     }
   };
-  
-  /* eslint-disable react-hooks/set-state-in-effect */
+
+
   useEffect(() => { fetchTeachers(); }, []);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -75,115 +76,111 @@ export default function Teachers() {
   };
 
   return (
-    <div className="module-page">
-      {/* Header */}
-      <div className="module-header">
-        <h2 className="module-title">Docentes</h2>
-        <button className="module-btn-new" onClick={() => setShowForm(true)}>
-          + Nuevo Docente
-        </button>
-      </div>
-
-      {/* Error */}
-      {error && <div className="module-error">{error}</div>}
-
-      {/* Formulario */}
-      {showForm && (
-        <div className="module-form-card">
-          <h5 className="module-form-title">
-            {editingTeacher ? "Editar Docente" : "Nuevo Docente"}
-          </h5>
-          <form onSubmit={handleSubmit}>
-            <div className="module-form-grid">
-              <div className="module-form-group">
-                <label className="module-label">Nombre *</label>
-                <input className="module-input" name="nombre" value={form.nombre} onChange={handleChange} required />
-              </div>
-              <div className="module-form-group">
-                <label className="module-label">Apellido Paterno *</label>
-                <input className="module-input" name="apaterno" value={form.apaterno} onChange={handleChange} required />
-              </div>
-              <div className="module-form-group">
-                <label className="module-label">Apellido Materno</label>
-                <input className="module-input" name="amaterno" value={form.amaterno} onChange={handleChange} />
-              </div>
-              <div className="module-form-group">
-                <label className="module-label">Email *</label>
-                <input className="module-input" type="email" name="email" value={form.email} onChange={handleChange} required />
-              </div>
-              <div className="module-form-group">
-                <label className="module-label">Teléfono *</label>
-                <input className="module-input" name="telefono" value={form.telefono} onChange={handleChange} required />
-              </div>
-              <div className="module-form-group">
-                <label className="module-label">Especialidad *</label>
-                <input className="module-input" name="especialidad" value={form.especialidad} onChange={handleChange} required />
-              </div>
-              <div className="module-form-group">
-                <label className="module-label">Ciudad</label>
-                <input className="module-input" name="ciudad" value={form.ciudad} onChange={handleChange} />
-              </div>
-            </div>
-            <div className="module-form-actions">
-              <button type="submit" className="module-btn-save">
-                {editingTeacher ? "Guardar Cambios" : "Crear Docente"}
-              </button>
-              <button type="button" className="module-btn-cancel" onClick={handleCancel}>
-                Cancelar
-              </button>
-            </div>
-          </form>
+    <AppLayout>
+      <div className="module-page">
+        <div className="module-header">
+          <h2 className="module-title">Docentes</h2>
+          <button className="module-btn-new" onClick={() => setShowForm(true)}>
+            + Nuevo Docente
+          </button>
         </div>
-      )}
 
-      {/* Tabla */}
-      {loading ? (
-        <p className="module-loading">Cargando...</p>
-      ) : (
-        <div className="module-table-card">
-          <table className="module-table">
-            <thead>
-              <tr>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Teléfono</th>
-                <th>Especialidad</th>
-                <th>Ciudad</th>
-                <th>Status</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {teachers.length === 0 ? (
+        {error && <div className="module-error">{error}</div>}
+
+        {showForm && (
+          <div className="module-form-card">
+            <h5 className="module-form-title">
+              {editingTeacher ? "Editar Docente" : "Nuevo Docente"}
+            </h5>
+            <form onSubmit={handleSubmit}>
+              <div className="module-form-grid">
+                <div className="module-form-group">
+                  <label className="module-label">Nombre *</label>
+                  <input className="module-input" name="nombre" value={form.nombre} onChange={handleChange} required />
+                </div>
+                <div className="module-form-group">
+                  <label className="module-label">Apellido Paterno *</label>
+                  <input className="module-input" name="apaterno" value={form.apaterno} onChange={handleChange} required />
+                </div>
+                <div className="module-form-group">
+                  <label className="module-label">Apellido Materno</label>
+                  <input className="module-input" name="amaterno" value={form.amaterno} onChange={handleChange} />
+                </div>
+                <div className="module-form-group">
+                  <label className="module-label">Email *</label>
+                  <input className="module-input" type="email" name="email" value={form.email} onChange={handleChange} required />
+                </div>
+                <div className="module-form-group">
+                  <label className="module-label">Teléfono *</label>
+                  <input className="module-input" name="telefono" value={form.telefono} onChange={handleChange} required />
+                </div>
+                <div className="module-form-group">
+                  <label className="module-label">Especialidad *</label>
+                  <input className="module-input" name="especialidad" value={form.especialidad} onChange={handleChange} required />
+                </div>
+                <div className="module-form-group">
+                  <label className="module-label">Ciudad</label>
+                  <input className="module-input" name="ciudad" value={form.ciudad} onChange={handleChange} />
+                </div>
+              </div>
+              <div className="module-form-actions">
+                <button type="submit" className="module-btn-save">
+                  {editingTeacher ? "Guardar Cambios" : "Crear Docente"}
+                </button>
+                <button type="button" className="module-btn-cancel" onClick={handleCancel}>
+                  Cancelar
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
+
+        {loading ? (
+          <p className="module-loading">Cargando...</p>
+        ) : (
+          <div className="module-table-card">
+            <table className="module-table">
+              <thead>
                 <tr>
-                  <td colSpan="7" className="module-empty">No hay docentes registrados</td>
+                  <th>Nombre</th>
+                  <th>Email</th>
+                  <th>Teléfono</th>
+                  <th>Especialidad</th>
+                  <th>Ciudad</th>
+                  <th>Status</th>
+                  <th>Acciones</th>
                 </tr>
-              ) : (
-                teachers.map((teacher) => (
-                  <tr key={teacher.id}>
-                    <td>{teacher.nombre} {teacher.apaterno} {teacher.amaterno}</td>
-                    <td>{teacher.email}</td>
-                    <td>{teacher.telefono}</td>
-                    <td>{teacher.especialidad}</td>
-                    <td>{teacher.ciudad}</td>
-                    <td>
-                      <span className={teacher.status ? "badge-active" : "badge-inactive"}>
-                        {teacher.status ? "Activo" : "Baja"}
-                      </span>
-                    </td>
-                    <td>
-                      <div className="module-actions">
-                        <button className="module-btn-edit" onClick={() => handleEdit(teacher)}>Editar</button>
-                        <button className="module-btn-delete" onClick={() => handleDelete(teacher.id)}>Baja</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
+              </thead>
+              <tbody>
+                {teachers.length === 0 ? (
+                  <tr><td colSpan="7" className="module-empty">No hay docentes registrados</td></tr>
+                ) : (
+                  teachers.map((teacher) => (
+                    <tr key={teacher.id}>
+                      <td>{teacher.nombre} {teacher.apaterno} {teacher.amaterno}</td>
+                      <td>{teacher.email}</td>
+                      <td>{teacher.telefono}</td>
+                      <td>{teacher.especialidad}</td>
+                      <td>{teacher.ciudad}</td>
+                      <td>
+                        <span className={teacher.status ? "badge-active" : "badge-inactive"}>
+                          {teacher.status ? "Activo" : "Baja"}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="module-actions">
+                          <button className="module-btn-edit" onClick={() => handleEdit(teacher)}>Editar</button>
+                          <button className="module-btn-delete" onClick={() => handleDelete(teacher.id)}>Baja</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </AppLayout>
   );
 }
