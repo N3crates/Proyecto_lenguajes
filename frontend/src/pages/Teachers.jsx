@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import AppLayout from "../components/layout/Applayout";
+import { useState, useEffect, useMemo } from "react";
+import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
 import "../styles/Teachers.css";
 
@@ -7,6 +7,7 @@ export default function Teachers() {
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [form, setForm] = useState({
@@ -26,8 +27,18 @@ export default function Teachers() {
     }
   };
 
-
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchTeachers(); }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return teachers.filter(t =>
+      `${t.nombre} ${t.apaterno} ${t.amaterno}`.toLowerCase().includes(q) ||
+      t.email?.toLowerCase().includes(q) ||
+      t.especialidad?.toLowerCase().includes(q) ||
+      t.ciudad?.toLowerCase().includes(q)
+    );
+  }, [teachers, search]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -77,57 +88,61 @@ export default function Teachers() {
 
   return (
     <AppLayout>
-      <div className="module-page">
-        <div className="module-header">
-          <h2 className="module-title">Docentes</h2>
-          <button className="module-btn-new" onClick={() => setShowForm(true)}>
-            + Nuevo Docente
+      <div className="pg-wrap">
+
+        {/* Header */}
+        <div className="pg-head">
+          <div>
+            <h1 className="pg-title">Docentes</h1>
+            <p className="pg-subtitle">Gestión del personal docente</p>
+          </div>
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            <Icon name="plus" /> Nuevo Docente
           </button>
         </div>
 
-        {error && <div className="module-error">{error}</div>}
-
+        {/* Formulario */}
         {showForm && (
-          <div className="module-form-card">
-            <h5 className="module-form-title">
+          <div className="pg-card" style={{ padding: "24px 28px" }}>
+            <h5 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>
               {editingTeacher ? "Editar Docente" : "Nuevo Docente"}
             </h5>
             <form onSubmit={handleSubmit}>
               <div className="module-form-grid">
                 <div className="module-form-group">
-                  <label className="module-label">Nombre *</label>
-                  <input className="module-input" name="nombre" value={form.nombre} onChange={handleChange} required />
+                  <label className="modal-label">Nombre *</label>
+                  <input className="pg-input" name="nombre" value={form.nombre} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Apellido Paterno *</label>
-                  <input className="module-input" name="apaterno" value={form.apaterno} onChange={handleChange} required />
+                  <label className="modal-label">Apellido Paterno *</label>
+                  <input className="pg-input" name="apaterno" value={form.apaterno} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Apellido Materno</label>
-                  <input className="module-input" name="amaterno" value={form.amaterno} onChange={handleChange} />
+                  <label className="modal-label">Apellido Materno</label>
+                  <input className="pg-input" name="amaterno" value={form.amaterno} onChange={handleChange} />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Email *</label>
-                  <input className="module-input" type="email" name="email" value={form.email} onChange={handleChange} required />
+                  <label className="modal-label">Email *</label>
+                  <input className="pg-input" type="email" name="email" value={form.email} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Teléfono *</label>
-                  <input className="module-input" name="telefono" value={form.telefono} onChange={handleChange} required />
+                  <label className="modal-label">Teléfono *</label>
+                  <input className="pg-input" name="telefono" value={form.telefono} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Especialidad *</label>
-                  <input className="module-input" name="especialidad" value={form.especialidad} onChange={handleChange} required />
+                  <label className="modal-label">Especialidad *</label>
+                  <input className="pg-input" name="especialidad" value={form.especialidad} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Ciudad</label>
-                  <input className="module-input" name="ciudad" value={form.ciudad} onChange={handleChange} />
+                  <label className="modal-label">Ciudad</label>
+                  <input className="pg-input" name="ciudad" value={form.ciudad} onChange={handleChange} />
                 </div>
               </div>
-              <div className="module-form-actions">
-                <button type="submit" className="module-btn-save">
+              <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+                <button type="submit" className="btn-primary">
                   {editingTeacher ? "Guardar Cambios" : "Crear Docente"}
                 </button>
-                <button type="button" className="module-btn-cancel" onClick={handleCancel}>
+                <button type="button" className="btn-ghost" onClick={handleCancel}>
                   Cancelar
                 </button>
               </div>
@@ -135,50 +150,74 @@ export default function Teachers() {
           </div>
         )}
 
-        {loading ? (
-          <p className="module-loading">Cargando...</p>
-        ) : (
-          <div className="module-table-card">
-            <table className="module-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Email</th>
-                  <th>Teléfono</th>
-                  <th>Especialidad</th>
-                  <th>Ciudad</th>
-                  <th>Status</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {teachers.length === 0 ? (
-                  <tr><td colSpan="7" className="module-empty">No hay docentes registrados</td></tr>
-                ) : (
-                  teachers.map((teacher) => (
-                    <tr key={teacher.id}>
-                      <td>{teacher.nombre} {teacher.apaterno} {teacher.amaterno}</td>
-                      <td>{teacher.email}</td>
-                      <td>{teacher.telefono}</td>
-                      <td>{teacher.especialidad}</td>
-                      <td>{teacher.ciudad}</td>
-                      <td>
-                        <span className={teacher.status ? "badge-active" : "badge-inactive"}>
-                          {teacher.status ? "Activo" : "Baja"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="module-actions">
-                          <button className="module-btn-edit" onClick={() => handleEdit(teacher)}>Editar</button>
-                          <button className="module-btn-delete" onClick={() => handleDelete(teacher.id)}>Baja</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        {/* Buscador */}
+        <div className="pg-card module-toolbar">
+          <div className="um-search-wrap">
+            <Icon name="search" />
+            <input
+              className="um-search-input"
+              placeholder="Buscar por nombre, email, especialidad o ciudad…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
+          {search && (
+            <button className="btn-ghost" onClick={() => setSearch("")}>Limpiar</button>
+          )}
+        </div>
+
+        {/* Error */}
+        {error && <div className="modal-error">{error}</div>}
+
+        {/* Tabla */}
+        <div className="pg-card module-table-card">
+          <table className="module-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Teléfono</th>
+                <th>Especialidad</th>
+                <th>Ciudad</th>
+                <th>Status</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="7" className="module-loading">Cargando...</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan="7" className="module-empty">No se encontraron docentes</td></tr>
+              ) : (
+                filtered.map((teacher) => (
+                  <tr key={teacher.id}>
+                    <td>{teacher.nombre} {teacher.apaterno} {teacher.amaterno}</td>
+                    <td>{teacher.email}</td>
+                    <td>{teacher.telefono}</td>
+                    <td>{teacher.especialidad}</td>
+                    <td>{teacher.ciudad || "—"}</td>
+                    <td>
+                      <span className={teacher.status ? "badge-active" : "badge-inactive"}>
+                        {teacher.status ? "Activo" : "Baja"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="module-actions">
+                        <button className="module-btn-edit" onClick={() => handleEdit(teacher)}>Editar</button>
+                        <button className="module-btn-delete" onClick={() => handleDelete(teacher.id)}>Baja</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {!loading && filtered.length > 0 && (
+          <p style={{ fontSize: 12.5, color: "var(--text-2)", textAlign: "center" }}>
+            Mostrando {filtered.length} de {teachers.length} docentes
+          </p>
         )}
       </div>
     </AppLayout>

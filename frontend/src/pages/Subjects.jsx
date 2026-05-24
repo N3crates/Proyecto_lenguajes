@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import AppLayout from "../components/layout/Applayout";
+import { useState, useEffect, useMemo } from "react";
+import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
 import "../styles/Teachers.css";
 
@@ -7,6 +7,7 @@ export default function Subjects() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [search, setSearch] = useState("");
   const [showForm, setShowForm] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [form, setForm] = useState({
@@ -27,6 +28,15 @@ export default function Subjects() {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchSubjects(); }, []);
+
+  const filtered = useMemo(() => {
+    const q = search.toLowerCase();
+    return subjects.filter(s =>
+      s.nombre?.toLowerCase().includes(q) ||
+      s.clave?.toLowerCase().includes(q) ||
+      s.descripcion?.toLowerCase().includes(q)
+    );
+  }, [subjects, search]);
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
 
@@ -75,49 +85,51 @@ export default function Subjects() {
 
   return (
     <AppLayout>
-      <div className="module-page">
-        <div className="module-header">
-          <h2 className="module-title">Materias</h2>
-          <button className="module-btn-new" onClick={() => setShowForm(true)}>
-            + Nueva Materia
+      <div className="pg-wrap">
+
+        <div className="pg-head">
+          <div>
+            <h1 className="pg-title">Materias</h1>
+            <p className="pg-subtitle">Gestión del catálogo de materias</p>
+          </div>
+          <button className="btn-primary" onClick={() => setShowForm(true)}>
+            <Icon name="plus" /> Nueva Materia
           </button>
         </div>
 
-        {error && <div className="module-error">{error}</div>}
-
         {showForm && (
-          <div className="module-form-card">
-            <h5 className="module-form-title">
+          <div className="pg-card" style={{ padding: "24px 28px" }}>
+            <h5 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>
               {editingSubject ? "Editar Materia" : "Nueva Materia"}
             </h5>
             <form onSubmit={handleSubmit}>
               <div className="module-form-grid">
                 <div className="module-form-group">
-                  <label className="module-label">Nombre *</label>
-                  <input className="module-input" name="nombre" value={form.nombre} onChange={handleChange} required />
+                  <label className="modal-label">Nombre *</label>
+                  <input className="pg-input" name="nombre" value={form.nombre} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Clave *</label>
-                  <input className="module-input" name="clave" value={form.clave} onChange={handleChange} required />
+                  <label className="modal-label">Clave *</label>
+                  <input className="pg-input" name="clave" value={form.clave} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Créditos *</label>
-                  <input className="module-input" type="number" name="creditos" value={form.creditos} onChange={handleChange} required />
+                  <label className="modal-label">Créditos *</label>
+                  <input className="pg-input" type="number" name="creditos" value={form.creditos} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group">
-                  <label className="module-label">Semestre *</label>
-                  <input className="module-input" type="number" name="semestre" value={form.semestre} onChange={handleChange} required />
+                  <label className="modal-label">Semestre *</label>
+                  <input className="pg-input" type="number" name="semestre" value={form.semestre} onChange={handleChange} required />
                 </div>
                 <div className="module-form-group full">
-                  <label className="module-label">Descripción</label>
-                  <input className="module-input" name="descripcion" value={form.descripcion} onChange={handleChange} />
+                  <label className="modal-label">Descripción</label>
+                  <input className="pg-input" name="descripcion" value={form.descripcion} onChange={handleChange} />
                 </div>
               </div>
-              <div className="module-form-actions">
-                <button type="submit" className="module-btn-save">
+              <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+                <button type="submit" className="btn-primary">
                   {editingSubject ? "Guardar Cambios" : "Crear Materia"}
                 </button>
-                <button type="button" className="module-btn-cancel" onClick={handleCancel}>
+                <button type="button" className="btn-ghost" onClick={handleCancel}>
                   Cancelar
                 </button>
               </div>
@@ -125,50 +137,71 @@ export default function Subjects() {
           </div>
         )}
 
-        {loading ? (
-          <p className="module-loading">Cargando...</p>
-        ) : (
-          <div className="module-table-card">
-            <table className="module-table">
-              <thead>
-                <tr>
-                  <th>Nombre</th>
-                  <th>Clave</th>
-                  <th>Créditos</th>
-                  <th>Semestre</th>
-                  <th>Descripción</th>
-                  <th>Status</th>
-                  <th>Acciones</th>
-                </tr>
-              </thead>
-              <tbody>
-                {subjects.length === 0 ? (
-                  <tr><td colSpan="7" className="module-empty">No hay materias registradas</td></tr>
-                ) : (
-                  subjects.map((subject) => (
-                    <tr key={subject.id}>
-                      <td>{subject.nombre}</td>
-                      <td>{subject.clave}</td>
-                      <td>{subject.creditos}</td>
-                      <td>{subject.semestre}</td>
-                      <td>{subject.descripcion || "—"}</td>
-                      <td>
-                        <span className={subject.status ? "badge-active" : "badge-inactive"}>
-                          {subject.status ? "Activa" : "Baja"}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="module-actions">
-                          <button className="module-btn-edit" onClick={() => handleEdit(subject)}>Editar</button>
-                          <button className="module-btn-delete" onClick={() => handleDelete(subject.id)}>Baja</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+        <div className="pg-card module-toolbar">
+          <div className="um-search-wrap">
+            <Icon name="search" />
+            <input
+              className="um-search-input"
+              placeholder="Buscar por nombre, clave o descripción…"
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+            />
           </div>
+          {search && (
+            <button className="btn-ghost" onClick={() => setSearch("")}>Limpiar</button>
+          )}
+        </div>
+
+        {error && <div className="modal-error">{error}</div>}
+
+        <div className="pg-card module-table-card">
+          <table className="module-table">
+            <thead>
+              <tr>
+                <th>Nombre</th>
+                <th>Clave</th>
+                <th>Créditos</th>
+                <th>Semestre</th>
+                <th>Descripción</th>
+                <th>Status</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr><td colSpan="7" className="module-loading">Cargando...</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan="7" className="module-empty">No se encontraron materias</td></tr>
+              ) : (
+                filtered.map((subject) => (
+                  <tr key={subject.id}>
+                    <td>{subject.nombre}</td>
+                    <td>{subject.clave}</td>
+                    <td>{subject.creditos}</td>
+                    <td>{subject.semestre}</td>
+                    <td>{subject.descripcion || "—"}</td>
+                    <td>
+                      <span className={subject.status ? "badge-active" : "badge-inactive"}>
+                        {subject.status ? "Activa" : "Baja"}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="module-actions">
+                        <button className="module-btn-edit" onClick={() => handleEdit(subject)}>Editar</button>
+                        <button className="module-btn-delete" onClick={() => handleDelete(subject.id)}>Baja</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {!loading && filtered.length > 0 && (
+          <p style={{ fontSize: 12.5, color: "var(--text-2)", textAlign: "center" }}>
+            Mostrando {filtered.length} de {subjects.length} materias
+          </p>
         )}
       </div>
     </AppLayout>
