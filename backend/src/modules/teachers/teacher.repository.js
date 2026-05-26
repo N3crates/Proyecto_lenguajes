@@ -42,10 +42,19 @@ const deleteTeacher = async (id) => {
     return { id }
 }
 
+const getTeacherByUserId = async (userId) => {
+    const snapshot = await collection.where("userId", "==", userId).limit(1).get()
+    if (snapshot.empty) return null
+    const doc = snapshot.docs[0]
+    return { id: doc.id, ...doc.data() }
+}
+
+
 module.exports = {
     getAllTeachers,
     createTeacher,
     getTeacherById,
     updateTeacher,
-    deleteTeacher
+    deleteTeacher,
+    getTeacherByUserId
 }

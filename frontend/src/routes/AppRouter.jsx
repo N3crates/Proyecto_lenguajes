@@ -9,6 +9,7 @@ import Users from '../pages/Users';
 import Teachers from '../pages/Teachers';
 import Subjects from '../pages/Subjects';
 import Groups from '../pages/Groups';
+import MyGroups from '../pages/MyGroups';
 import Enrollments from '../pages/Enrollments';
 import Profile from '../pages/Profile';
 import Roles from '../pages/Roles';
@@ -30,6 +31,7 @@ const AppRouter = () => {
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/subjects" element={<Subjects />} />
         <Route path="/groups" element={<Groups />} />
+        <Route path="/groups/my-groups" element={<MyGroups />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/roles" element={<Roles />} />
         <Route path="/audit" element={<Audit />} />

@@ -3,16 +3,20 @@ import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
 import "../styles/Teachers.css";
 
+const ITEMS_PER_PAGE = 8;
+
 export default function Subjects() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
   const [showForm, setShowForm] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [form, setForm] = useState({
     nombre: "", clave: "", creditos: "", semestre: "", descripcion: "",
   });
+  const [formErrors, setFormErrors] = useState({});
 
   const fetchSubjects = async () => {
     try {
@@ -38,10 +42,34 @@ export default function Subjects() {
     );
   }, [subjects, search]);
 
-  const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
+  const totalPages = Math.max(Math.ceil(filtered.length / ITEMS_PER_PAGE), 1);
+  const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
+
+  const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
+
+  const validate = (data) => {
+    const errors = {};
+    if (!data.nombre.trim())   errors.nombre   = "El nombre es obligatorio";
+    if (!data.clave.trim())    errors.clave    = "La clave es obligatoria";
+    if (!data.creditos)        errors.creditos = "Los créditos son obligatorios";
+    else if (isNaN(data.creditos) || Number(data.creditos) <= 0)
+                               errors.creditos = "Los créditos deben ser un número mayor a 0";
+    if (!data.semestre)        errors.semestre = "El semestre es obligatorio";
+    else if (isNaN(data.semestre) || Number(data.semestre) <= 0)
+                               errors.semestre = "El semestre debe ser un número mayor a 0";
+    return errors;
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+    if (formErrors[name]) setFormErrors({ ...formErrors, [name]: null });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const errors = validate(form);
+    if (Object.keys(errors).length > 0) { setFormErrors(errors); return; }
     try {
       if (editingSubject) {
         await api.put(`/subjects/${editingSubject.id}`, form);
@@ -51,6 +79,7 @@ export default function Subjects() {
       setShowForm(false);
       setEditingSubject(null);
       setForm({ nombre: "", clave: "", creditos: "", semestre: "", descripcion: "" });
+      setFormErrors({});
       fetchSubjects();
     } catch (err) {
       alert(err.response?.data?.message || "Error al guardar materia");
@@ -64,6 +93,7 @@ export default function Subjects() {
       creditos: subject.creditos || "", semestre: subject.semestre || "",
       descripcion: subject.descripcion || "",
     });
+    setFormErrors({});
     setShowForm(true);
   };
 
@@ -81,6 +111,7 @@ export default function Subjects() {
     setShowForm(false);
     setEditingSubject(null);
     setForm({ nombre: "", clave: "", creditos: "", semestre: "", descripcion: "" });
+    setFormErrors({});
   };
 
   return (
@@ -102,28 +133,38 @@ export default function Subjects() {
             <h5 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>
               {editingSubject ? "Editar Materia" : "Nueva Materia"}
             </h5>
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
               <div className="module-form-grid">
+
                 <div className="module-form-group">
                   <label className="modal-label">Nombre *</label>
-                  <input className="pg-input" name="nombre" value={form.nombre} onChange={handleChange} required />
+                  <input className={`pg-input ${formErrors.nombre ? "input-error" : ""}`} name="nombre" value={form.nombre} onChange={handleChange} />
+                  {formErrors.nombre && <span className="field-error">{formErrors.nombre}</span>}
                 </div>
+
                 <div className="module-form-group">
                   <label className="modal-label">Clave *</label>
-                  <input className="pg-input" name="clave" value={form.clave} onChange={handleChange} required />
+                  <input className={`pg-input ${formErrors.clave ? "input-error" : ""}`} name="clave" value={form.clave} onChange={handleChange} />
+                  {formErrors.clave && <span className="field-error">{formErrors.clave}</span>}
                 </div>
+
                 <div className="module-form-group">
                   <label className="modal-label">Créditos *</label>
-                  <input className="pg-input" type="number" name="creditos" value={form.creditos} onChange={handleChange} required />
+                  <input className={`pg-input ${formErrors.creditos ? "input-error" : ""}`} type="number" name="creditos" value={form.creditos} onChange={handleChange} />
+                  {formErrors.creditos && <span className="field-error">{formErrors.creditos}</span>}
                 </div>
+
                 <div className="module-form-group">
                   <label className="modal-label">Semestre *</label>
-                  <input className="pg-input" type="number" name="semestre" value={form.semestre} onChange={handleChange} required />
+                  <input className={`pg-input ${formErrors.semestre ? "input-error" : ""}`} type="number" name="semestre" value={form.semestre} onChange={handleChange} />
+                  {formErrors.semestre && <span className="field-error">{formErrors.semestre}</span>}
                 </div>
+
                 <div className="module-form-group full">
                   <label className="modal-label">Descripción</label>
                   <input className="pg-input" name="descripcion" value={form.descripcion} onChange={handleChange} />
                 </div>
+
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                 <button type="submit" className="btn-primary">
@@ -144,11 +185,11 @@ export default function Subjects() {
               className="um-search-input"
               placeholder="Buscar por nombre, clave o descripción…"
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={handleSearch}
             />
           </div>
           {search && (
-            <button className="btn-ghost" onClick={() => setSearch("")}>Limpiar</button>
+            <button className="btn-ghost" onClick={() => { setSearch(""); setPage(1); }}>Limpiar</button>
           )}
         </div>
 
@@ -170,10 +211,10 @@ export default function Subjects() {
             <tbody>
               {loading ? (
                 <tr><td colSpan="7" className="module-loading">Cargando...</td></tr>
-              ) : filtered.length === 0 ? (
+              ) : paginated.length === 0 ? (
                 <tr><td colSpan="7" className="module-empty">No se encontraron materias</td></tr>
               ) : (
-                filtered.map((subject) => (
+                paginated.map((subject) => (
                   <tr key={subject.id}>
                     <td>{subject.nombre}</td>
                     <td>{subject.clave}</td>
@@ -198,11 +239,28 @@ export default function Subjects() {
           </table>
         </div>
 
+        {!loading && filtered.length > ITEMS_PER_PAGE && (
+          <div className="module-pagination">
+            <button className="page-btn" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
+              ← Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
+              <button key={n} className={`page-btn ${page === n ? "active" : ""}`} onClick={() => setPage(n)}>
+                {n}
+              </button>
+            ))}
+            <button className="page-btn" onClick={() => setPage(p => Math.min(p + 1, totalPages))} disabled={page === totalPages}>
+              Siguiente →
+            </button>
+          </div>
+        )}
+
         {!loading && filtered.length > 0 && (
           <p style={{ fontSize: 12.5, color: "var(--text-2)", textAlign: "center" }}>
-            Mostrando {filtered.length} de {subjects.length} materias
+            Mostrando {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} de {filtered.length} materias
           </p>
         )}
+
       </div>
     </AppLayout>
   );

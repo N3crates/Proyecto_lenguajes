@@ -60,4 +60,10 @@ const deleteTeacher = async (id, adminId) => {
     return result
 }
 
-module.exports = { getTeachers, createTeacher, getTeacherById, updateTeacher, deleteTeacher }
+const getTeacherByUserId = async (userId) => {
+    const teacher = await repository.getTeacherByUserId(userId)
+    if (!teacher) throw new Error("Perfil de docente no encontrado")
+    return teacher
+}
+
+module.exports = { getTeachers, createTeacher, getTeacherById, updateTeacher, deleteTeacher, getTeacherByUserId }

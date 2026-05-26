@@ -78,10 +78,20 @@ const deleteTeacher = async (req, res) => {
     }
 }
 
+const getTeacherByUserId = async (req, res) => {
+    try {
+        const teacher = await service.getTeacherByUserId(req.params.userId)
+        res.json({ success: true, data: teacher })
+    } catch (error) {
+        res.status(404).json({ success: false, message: error.message })
+    }
+}
+
 module.exports = {
     getTeachers,
     createTeacher,
     getTeacherById,
     updateTeacher,
-    deleteTeacher
+    deleteTeacher,
+    getTeacherByUserId
 }
