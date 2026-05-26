@@ -1,7 +1,7 @@
 const validateGrade = (gradeData) => {
     const errors = []
 
-    if(!gradeDate.enrollmentId){
+    if(!gradeData.enrollmentId){
         errors.push("El enrollmentId es obligatorio")
     }
     if(gradeData.partial1 == null){

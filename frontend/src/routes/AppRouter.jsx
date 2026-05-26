@@ -11,9 +11,13 @@ import Subjects from '../pages/Subjects';
 import Groups from '../pages/Groups';
 import MyGroups from '../pages/MyGroups';
 import Enrollments from '../pages/Enrollments';
+<<<<<<< Updated upstream
 import Profile from '../pages/Profile';
 import Roles from '../pages/Roles';
 import Audit from '../pages/Audit';
+=======
+import Grades from '../pages/Grades';
+>>>>>>> Stashed changes
 
 const AppRouter = () => {
   return (
@@ -27,6 +31,7 @@ const AppRouter = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/students" element={<Students />} />
         <Route path="/enrollments" element={<Enrollments />} />
+        <Route path="/grades" element={<Grades />} />
         <Route path="/users" element={<Users />} />
         <Route path="/teachers" element={<Teachers />} />
         <Route path="/subjects" element={<Subjects />} />
