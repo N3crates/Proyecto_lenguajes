@@ -1,0 +1,78 @@
+/* Enrollments.css */
+
+/* Chips de resumen / filtro */
+.en-chips {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.en-chip {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 13px 22px; min-width: 90px;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+.en-chip:hover { transform: translateY(-2px); }
+
+.en-chip-val {
+  font-family: 'Sora', sans-serif;
+  font-size: 24px; font-weight: 700; color: var(--text); line-height: 1;
+}
+.en-chip-lbl { font-size: 11.5px; font-weight: 600; color: var(--text-2); margin-top: 3px; }
+
+.en-chip.active                  { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(79,110,247,0.10); }
+.en-chip.active .en-chip-val     { color: var(--accent); }
+.enc-active.active               { border-color: #16a34a; box-shadow: 0 0 0 3px rgba(22,163,74,0.10); }
+.enc-active.active .en-chip-val  { color: #16a34a; }
+.enc-inactive.active             { border-color: #64748b; box-shadow: 0 0 0 3px rgba(100,116,139,0.10); }
+.enc-inactive.active .en-chip-val{ color: #64748b; }
+
+/* Toolbar */
+.en-toolbar { padding: 12px 16px; }
+
+/* Tabla */
+.en-table-card { overflow: hidden; padding: 0; }
+
+.en-table {
+  width: 100%; border-collapse: collapse; font-size: 13.5px;
+}
+.en-table thead tr { border-bottom: 2px solid var(--border); }
+.en-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-2); white-space: nowrap;
+}
+.en-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+  color: var(--text);
+}
+.en-table tbody tr:last-child td { border-bottom: none; }
+.en-table tbody tr:hover { background: #f8f9fd; }
+.en-row-inactive td { opacity: 0.55; }
+
+/* Celda alumno con avatar */
+.en-cell-name {
+  display: flex; align-items: center; gap: 10px; font-weight: 600;
+}
+.en-avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, #4f6ef7, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-size: 12px; font-weight: 700;
+  color: #fff; flex-shrink: 0;
+}
+.en-date { font-size: 12.5px; color: var(--text-2); white-space: nowrap; }
+
+/* Skeleton */
+.en-sk-wrap { display: flex; flex-direction: column; padding: 8px 16px; }
+.en-sk-row {
+  display: flex; align-items: center; gap: 16px;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.en-sk-row:last-child { border-bottom: none; }

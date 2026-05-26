@@ -60,17 +60,11 @@ function Login() {
           </p>
 
           {/* TABS */}
-          <div className="auth-tabs">
+          <div className="auth-tabs d-flex justify-content-center align-items-center" >
 
             <button className="active">
-              Iniciar Sesión
+              Iniciar Sesión ᓚᘏᗢ
             </button>
-
-            <Link to="/register">
-              <button>
-                Registrarse
-              </button>
-            </Link>
 
           </div>
 
@@ -126,8 +120,8 @@ function Login() {
           <p className="auth-footer">
             ¿No tienes cuenta?
 
-            <Link to="/register">
-              Registrarse
+            <Link to="/login" className="auth-link">
+              Que mal ╯︿╰ 
             </Link>
           </p>
 
