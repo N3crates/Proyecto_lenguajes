@@ -22,7 +22,7 @@ const register = async (userData) => {
     name: userData.name,
     email: userData.email,
     password: hashedPassword,
-    role: 'user',
+    role: userData.role,
     status: 'active',
     createdAt: new Date()
   };
