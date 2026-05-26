@@ -15,22 +15,6 @@ const getStudents = async(req, res) => {
     }
 }
 
-const createStudent = async(req, res) => {
-    try {
-        const response = await service.createStudent(req.body)
-        res.status(201).json({
-            success: true,
-            message: "Alumno Creado",
-            data: response
-        })
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: error.message
-        })
-    }
-}
-
 const getStudentsById = async(req, res) => {
     try {
         const student = await service.getStudentsById(req.params.id)
@@ -86,7 +70,6 @@ const deleteStudent = async(req, res) => {
 
 module.exports = {
     getStudents,
-    createStudent,
     getStudentsById,
     updateStudent,
     deleteStudent

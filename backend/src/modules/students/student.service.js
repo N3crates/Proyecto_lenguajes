@@ -6,23 +6,6 @@ const getStudents = async () => {
     return await repository.getAllStudents()
 }
 
-const createStudent = async (studentData, adminId) => {
-    const errors = validation.validateStudent(studentData)
-    if (errors.length > 0) throw new Error(errors.join(", "))
-
-    studentData.status    = true
-    studentData.createdAt = new Date()
-
-    const saved = await repository.createStudent(studentData)
-
-    await createAuditLog(adminId, 'CREATE_STUDENT', {
-        studentId: saved.id,
-        name:      studentData.name || `${studentData.nombre} ${studentData.apaterno}`
-    })
-
-    return saved
-}
-
 const getStudentsById = async (id) => {
     const student = await repository.getStudentsById(id)
     if (!student) throw new Error("Alumno no encontrado")
@@ -58,4 +41,4 @@ const deleteStudent = async (id, adminId) => {
     return result
 }
 
-module.exports = { getStudents, createStudent, getStudentsById, updateStudent, deleteStudent }
+module.exports = { getStudents, getStudentsById, updateStudent, deleteStudent }

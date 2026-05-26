@@ -1,19 +1,12 @@
 const db = require("../../config/firebase")
-const collection = db.collection("students")
+const collection = db.collection("users")
 
 const getAllStudents = async() => {
-    const snapshot = await collection.get()
+    const snapshot = await collection.where("role", "==", "student").get()
     return snapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
     }))
-}
-
-const createStudent = async(studentData) => {
-    const response = await collection.add(studentData)
-    return {
-        id: response.id
-    }
 }
 
 const getStudentsById = async(id) => {
@@ -26,7 +19,7 @@ const getStudentsById = async(id) => {
         id: doc.id,
         ...doc.data()
     }
-    if(!student.status) {
+    if(!student.role !== "student") {
         return null
     }
     return student
