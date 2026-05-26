@@ -40,7 +40,6 @@ const deleteStudent = async(id) => {
 
 module.exports = {
     getAllStudents,
-    createStudent,
     getStudentsById,
     updateStudent,
     deleteStudent
