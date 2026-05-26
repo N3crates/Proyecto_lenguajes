@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import AppLayout, { Icon } from "../components/layout/Applayout";
+import AppLayout from "../components/layout/Applayout";
 import "../styles/Dashboard.css";
 
 

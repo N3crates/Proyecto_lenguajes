@@ -11,13 +11,12 @@ import Subjects from '../pages/Subjects';
 import Groups from '../pages/Groups';
 import MyGroups from '../pages/MyGroups';
 import Enrollments from '../pages/Enrollments';
-<<<<<<< Updated upstream
+
 import Profile from '../pages/Profile';
 import Roles from '../pages/Roles';
 import Audit from '../pages/Audit';
-=======
 import Grades from '../pages/Grades';
->>>>>>> Stashed changes
+
 
 const AppRouter = () => {
   return (
