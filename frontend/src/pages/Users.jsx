@@ -300,7 +300,7 @@ export default function UsersPage() {
             <Icon name="plus" /> Nuevo usuario
           </button>
         </div>
-
+        
         {/* Chips resumen dinámicos */}
         {!loading && (
           <div className="um-summary-chips">

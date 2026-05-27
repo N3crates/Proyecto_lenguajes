@@ -3,13 +3,13 @@ import axios from "axios"
 const API_URL = "http://localhost:3000/api/students"
 
 export const getStudents = async() => {
-    try {
-        const response = await axios.get(API_URL)
-        return response.data
-    } catch (error) {
-        console.log(error)
-        throw error
-    }
+    const response = await axios.get("/students")
+    return response.data
+}
+
+export const getStudentById = async(id) => {
+    const response = await axios.get(`/students/${id}`)
+    return response.data
 }
 
 export const createStudent = async(studentData) => {
