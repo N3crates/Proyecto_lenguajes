@@ -19,11 +19,9 @@ export default function MyGroups() {
     try {
       setLoading(true);
 
-      // 1. Obtener el perfil de docente usando el userId del login
       const teacherRes = await api.get(`/teachers/by-user/${user.id}`);
       const teacher = teacherRes.data.data;
 
-      // 2. Obtener los grupos de ese docente y las materias en paralelo
       const [groupsRes, subjectsRes] = await Promise.all([
         api.get(`/groups/teacher/${teacher.id}`),
         api.get("/subjects"),
@@ -61,6 +59,8 @@ export default function MyGroups() {
 
   const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
 
+  const activeGroups = groups.filter(g => g.status).length;
+
   return (
     <AppLayout>
       <div className="pg-wrap">
@@ -72,6 +72,21 @@ export default function MyGroups() {
             <p className="pg-subtitle">Grupos asignados a tu perfil docente</p>
           </div>
         </div>
+
+        {/* Banner de bienvenida */}
+{!loading && (
+  <div className="db-widget g-indigo" style={{ padding: "20px 28px", display: "flex", alignItems: "center", gap: 14, borderRadius: "var(--radius)", marginBottom: 0 }}>
+    <span style={{ fontSize: 32 }}>👨‍🏫</span>
+    <div>
+      <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff" }}>
+        Bienvenido, {user.name}
+      </p>
+      <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.8)", marginTop: 4 }}>
+        Tienes <strong>{activeGroups}</strong> grupo{activeGroups !== 1 ? "s" : ""} activo{activeGroups !== 1 ? "s" : ""} asignado{activeGroups !== 1 ? "s" : ""} este ciclo.
+      </p>
+    </div>
+  </div>
+)}
 
         {/* Buscador */}
         <div className="pg-card module-toolbar">

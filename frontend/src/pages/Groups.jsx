@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
 import "../styles/Teachers.css";
+import "../styles/Dashboard.css";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -38,10 +39,8 @@ export default function Groups() {
     }
   };
 
-  useEffect(() => { 
-    const load = async () => { await fetchAll(); };
-    load();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchAll(); }, []);
 
   const getTeacherName = (id) => {
     const t = teachers.find(t => t.id === id);
@@ -146,6 +145,34 @@ export default function Groups() {
           </button>
         </div>
 
+        {/* STATS CARDS */}
+        <div className="db-widgets">
+          <div className="db-widget g-indigo">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">🏫</span>
+            </div>
+            <p className="db-widget-value">{groups.length}</p>
+            <p className="db-widget-label">Total Grupos</p>
+            <p className="db-widget-sub">Registrados en el sistema</p>
+          </div>
+          <div className="db-widget g-teal">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">✅</span>
+            </div>
+            <p className="db-widget-value">{groups.filter(g => g.status).length}</p>
+            <p className="db-widget-label">Grupos Activos</p>
+            <p className="db-widget-sub">Activos este ciclo</p>
+          </div>
+          <div className="db-widget g-rose">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">❌</span>
+            </div>
+            <p className="db-widget-value">{groups.filter(g => !g.status).length}</p>
+            <p className="db-widget-label">Grupos de Baja</p>
+            <p className="db-widget-sub">Inactivos en el sistema</p>
+          </div>
+        </div>
+
         {showForm && (
           <div className="pg-card" style={{ padding: "24px 28px" }}>
             <h5 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>
@@ -153,19 +180,16 @@ export default function Groups() {
             </h5>
             <form onSubmit={handleSubmit} noValidate>
               <div className="module-form-grid">
-
                 <div className="module-form-group">
                   <label className="modal-label">Nombre *</label>
                   <input className={`pg-input ${formErrors.nombre ? "input-error" : ""}`} name="nombre" value={form.nombre} onChange={handleChange} />
                   {formErrors.nombre && <span className="field-error">{formErrors.nombre}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Ciclo Escolar *</label>
                   <input className={`pg-input ${formErrors.ciclo ? "input-error" : ""}`} name="ciclo" value={form.ciclo} onChange={handleChange} placeholder="2025-1" />
                   {formErrors.ciclo && <span className="field-error">{formErrors.ciclo}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Docente *</label>
                   <select className={`pg-select ${formErrors.teacherId ? "input-error" : ""}`} name="teacherId" value={form.teacherId} onChange={handleChange} style={{ width: "100%" }}>
@@ -176,7 +200,6 @@ export default function Groups() {
                   </select>
                   {formErrors.teacherId && <span className="field-error">{formErrors.teacherId}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Materia *</label>
                   <select className={`pg-select ${formErrors.subjectId ? "input-error" : ""}`} name="subjectId" value={form.subjectId} onChange={handleChange} style={{ width: "100%" }}>
@@ -187,20 +210,16 @@ export default function Groups() {
                   </select>
                   {formErrors.subjectId && <span className="field-error">{formErrors.subjectId}</span>}
                 </div>
-
                 <div className="module-form-group full">
                   <label className="modal-label">Descripción</label>
                   <input className="pg-input" name="descripcion" value={form.descripcion} onChange={handleChange} />
                 </div>
-
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                 <button type="submit" className="btn-primary">
                   {editingGroup ? "Guardar Cambios" : "Crear Grupo"}
                 </button>
-                <button type="button" className="btn-ghost" onClick={handleCancel}>
-                  Cancelar
-                </button>
+                <button type="button" className="btn-ghost" onClick={handleCancel}>Cancelar</button>
               </div>
             </form>
           </div>

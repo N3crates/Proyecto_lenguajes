@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
 import "../styles/Teachers.css";
+import "../styles/Dashboard.css";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -30,8 +31,7 @@ export default function Subjects() {
     }
   };
 
-
-  useEffect(() => { 
+  useEffect(() => {
     const load = async () => { await fetchSubjects(); };
     load();
   }, []);
@@ -131,6 +131,34 @@ export default function Subjects() {
           </button>
         </div>
 
+        {/* STATS CARDS */}
+        <div className="db-widgets">
+          <div className="db-widget g-indigo">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">📚</span>
+            </div>
+            <p className="db-widget-value">{subjects.length}</p>
+            <p className="db-widget-label">Total Materias</p>
+            <p className="db-widget-sub">Registradas en el sistema</p>
+          </div>
+          <div className="db-widget g-teal">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">✅</span>
+            </div>
+            <p className="db-widget-value">{subjects.filter(s => s.status).length}</p>
+            <p className="db-widget-label">Materias Activas</p>
+            <p className="db-widget-sub">Disponibles este ciclo</p>
+          </div>
+          <div className="db-widget g-rose">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">❌</span>
+            </div>
+            <p className="db-widget-value">{subjects.filter(s => !s.status).length}</p>
+            <p className="db-widget-label">Materias de Baja</p>
+            <p className="db-widget-sub">Inactivas en el sistema</p>
+          </div>
+        </div>
+
         {showForm && (
           <div className="pg-card" style={{ padding: "24px 28px" }}>
             <h5 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>
@@ -138,44 +166,36 @@ export default function Subjects() {
             </h5>
             <form onSubmit={handleSubmit} noValidate>
               <div className="module-form-grid">
-
                 <div className="module-form-group">
                   <label className="modal-label">Nombre *</label>
                   <input className={`pg-input ${formErrors.nombre ? "input-error" : ""}`} name="nombre" value={form.nombre} onChange={handleChange} />
                   {formErrors.nombre && <span className="field-error">{formErrors.nombre}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Clave *</label>
                   <input className={`pg-input ${formErrors.clave ? "input-error" : ""}`} name="clave" value={form.clave} onChange={handleChange} />
                   {formErrors.clave && <span className="field-error">{formErrors.clave}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Créditos *</label>
                   <input className={`pg-input ${formErrors.creditos ? "input-error" : ""}`} type="number" name="creditos" value={form.creditos} onChange={handleChange} />
                   {formErrors.creditos && <span className="field-error">{formErrors.creditos}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Semestre *</label>
                   <input className={`pg-input ${formErrors.semestre ? "input-error" : ""}`} type="number" name="semestre" value={form.semestre} onChange={handleChange} />
                   {formErrors.semestre && <span className="field-error">{formErrors.semestre}</span>}
                 </div>
-
                 <div className="module-form-group full">
                   <label className="modal-label">Descripción</label>
                   <input className="pg-input" name="descripcion" value={form.descripcion} onChange={handleChange} />
                 </div>
-
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                 <button type="submit" className="btn-primary">
                   {editingSubject ? "Guardar Cambios" : "Crear Materia"}
                 </button>
-                <button type="button" className="btn-ghost" onClick={handleCancel}>
-                  Cancelar
-                </button>
+                <button type="button" className="btn-ghost" onClick={handleCancel}>Cancelar</button>
               </div>
             </form>
           </div>

@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
 import "../styles/Teachers.css";
+import "../styles/Dashboard.css";
 
 const ITEMS_PER_PAGE = 8;
 
@@ -31,12 +32,9 @@ export default function Teachers() {
     }
   };
 
-  useEffect(() => { 
-    const load = async () => { await fetchTeachers(); };
-    load();
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { fetchTeachers(); }, []);
 
-  // ── Búsqueda ──
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return teachers.filter(t =>
@@ -47,16 +45,11 @@ export default function Teachers() {
     );
   }, [teachers, search]);
 
-  // ── Paginación ──
   const totalPages = Math.max(Math.ceil(filtered.length / ITEMS_PER_PAGE), 1);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
-  const handleSearch = (e) => {
-    setSearch(e.target.value);
-    setPage(1);
-  };
+  const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
 
-  // ── Validación ──
   const validate = (data) => {
     const errors = {};
     if (!data.nombre.trim())        errors.nombre       = "El nombre es obligatorio";
@@ -72,9 +65,7 @@ export default function Teachers() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
-    if (formErrors[name]) {
-      setFormErrors({ ...formErrors, [name]: null });
-    }
+    if (formErrors[name]) setFormErrors({ ...formErrors, [name]: null });
   };
 
   const handleSubmit = async (e) => {
@@ -136,6 +127,34 @@ export default function Teachers() {
           </div>
         </div>
 
+        {/* STATS CARDS */}
+        <div className="db-widgets">
+          <div className="db-widget g-indigo">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">👨‍🏫</span>
+            </div>
+            <p className="db-widget-value">{teachers.length}</p>
+            <p className="db-widget-label">Total Docentes</p>
+            <p className="db-widget-sub">Registrados en el sistema</p>
+          </div>
+          <div className="db-widget g-teal">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">✅</span>
+            </div>
+            <p className="db-widget-value">{teachers.filter(t => t.status).length}</p>
+            <p className="db-widget-label">Docentes Activos</p>
+            <p className="db-widget-sub">Actualmente activos</p>
+          </div>
+          <div className="db-widget g-rose">
+            <div className="db-widget-top">
+              <span className="db-widget-icon">❌</span>
+            </div>
+            <p className="db-widget-value">{teachers.filter(t => !t.status).length}</p>
+            <p className="db-widget-label">Docentes de Baja</p>
+            <p className="db-widget-sub">Inactivos en el sistema</p>
+          </div>
+        </div>
+
         {/* Formulario — solo aparece al editar */}
         {showForm && (
           <div className="pg-card" style={{ padding: "24px 28px" }}>
@@ -144,47 +163,39 @@ export default function Teachers() {
             </h5>
             <form onSubmit={handleSubmit} noValidate>
               <div className="module-form-grid">
-
                 <div className="module-form-group">
                   <label className="modal-label">Nombre *</label>
                   <input className={`pg-input ${formErrors.nombre ? "input-error" : ""}`} name="nombre" value={form.nombre} onChange={handleChange} />
                   {formErrors.nombre && <span className="field-error">{formErrors.nombre}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Apellido Paterno *</label>
                   <input className={`pg-input ${formErrors.apaterno ? "input-error" : ""}`} name="apaterno" value={form.apaterno} onChange={handleChange} />
                   {formErrors.apaterno && <span className="field-error">{formErrors.apaterno}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Apellido Materno</label>
                   <input className="pg-input" name="amaterno" value={form.amaterno} onChange={handleChange} />
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Email *</label>
                   <input className={`pg-input ${formErrors.email ? "input-error" : ""}`} type="email" name="email" value={form.email} onChange={handleChange} />
                   {formErrors.email && <span className="field-error">{formErrors.email}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Teléfono *</label>
                   <input className={`pg-input ${formErrors.telefono ? "input-error" : ""}`} name="telefono" value={form.telefono} onChange={handleChange} />
                   {formErrors.telefono && <span className="field-error">{formErrors.telefono}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Especialidad *</label>
                   <input className={`pg-input ${formErrors.especialidad ? "input-error" : ""}`} name="especialidad" value={form.especialidad} onChange={handleChange} />
                   {formErrors.especialidad && <span className="field-error">{formErrors.especialidad}</span>}
                 </div>
-
                 <div className="module-form-group">
                   <label className="modal-label">Ciudad</label>
                   <input className="pg-input" name="ciudad" value={form.ciudad} onChange={handleChange} />
                 </div>
-
               </div>
               <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
                 <button type="submit" className="btn-primary">Guardar Cambios</button>
@@ -257,18 +268,13 @@ export default function Teachers() {
           </table>
         </div>
 
-        {/* Paginación */}
         {!loading && filtered.length > ITEMS_PER_PAGE && (
           <div className="module-pagination">
             <button className="page-btn" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
               ← Anterior
             </button>
             {Array.from({ length: totalPages }, (_, i) => i + 1).map(n => (
-              <button
-                key={n}
-                className={`page-btn ${page === n ? "active" : ""}`}
-                onClick={() => setPage(n)}
-              >
+              <button key={n} className={`page-btn ${page === n ? "active" : ""}`} onClick={() => setPage(n)}>
                 {n}
               </button>
             ))}
