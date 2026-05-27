@@ -11,7 +11,7 @@ const createEnrollment = async (enrollmentData, adminId) => {
     if (errors.length > 0) throw new Error(errors.join(", "))
 
     const duplicate = await repository.findDuplicateEnrollment(
-        enrollmentData.studentId, enrollmentData.subject, enrollmentData.group)
+        enrollmentData.studentId, enrollmentData.subjectId, enrollmentData.groupId)
     if (duplicate) throw new Error("El alumno ya esta inscrito en esta materia y grupo")
 
     enrollmentData.status  = true
@@ -22,8 +22,8 @@ const createEnrollment = async (enrollmentData, adminId) => {
     await createAuditLog(adminId, 'CREATE_ENROLLMENT', {
         enrollmentId: saved.id,
         studentId:    enrollmentData.studentId,
-        subject:      enrollmentData.subject,
-        group:        enrollmentData.group
+        subjectId:      enrollmentData.subjectId,
+        groupId:        enrollmentData.groupId
     })
 
     return saved
@@ -48,7 +48,7 @@ const deleteEnrollment = async (id, adminId) => {
     await createAuditLog(adminId, 'DELETE_ENROLLMENT', {
         enrollmentId: id,
         studentId:    enrollment.studentId,
-        subject:      enrollment.subject
+        subjectId:      enrollment.subjectId
     })
 
     return result
@@ -62,11 +62,11 @@ const updateEnrollment = async (id, enrollmentData, adminId) => {
     if (errors.length > 0) throw new Error(errors.join(", "))
 
     const duplicate = await repository.findDuplicateEnrollment(
-        enrollmentData.studentId, enrollmentData.subject, enrollmentData.group)
+        enrollmentData.studentId, enrollmentData.subjectId,enrollmentData.groupId)
     if (duplicate && (
         enrollment.studentId !== enrollmentData.studentId ||
-        enrollment.subject   !== enrollmentData.subject   ||
-        enrollment.group     !== enrollmentData.group
+        enrollment.subjectId !== enrollmentData.subjectId ||
+        enrollment.groupId !== enrollmentData.groupId
     )) throw new Error("Ya existe una inscripción")
 
     enrollmentData.updatedAt = new Date()
