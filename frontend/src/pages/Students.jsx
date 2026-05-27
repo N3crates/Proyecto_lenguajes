@@ -1,22 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import AppLayout from "../components/layout/Applayout";
 import api from "../api/axios";
-
 import "../styles/Teachers.css";
 import "../styles/Dashboard.css";
 
 export default function Students() {
-
   const [students, setStudents] = useState([]);
-
   const [loading, setLoading] = useState(true);
-
   const [error, setError] = useState(null)
-
   const [search, setSearch] = useState("")
-
-    const [statusFilter, setStatusFilter] = useState("all")
-
+  const [statusFilter, setStatusFilter] = useState("all")
+  const [showForm, setShowForm] = useState(false)
+  const [editingStudent, setEditingStudent] = useState(null)
+  const [form, setForm] = useState({ name: "", email: "", studentNumber: ""})
 
   // =====================================
   // FETCH STUDENTS
@@ -71,6 +67,33 @@ export default function Students() {
     }
   }
 
+  const handleEdit = (student) => {
+    setEditingStudent(student)
+    setForm({
+        name: student.name || "",
+        email: student.email || "",
+        studentNumber: student.studentNumber || ""
+    })
+    setShowForm(true)
+    }
+
+    const handleChange = (e) => { 
+        setForm({ ...form, [e.target.name] : e.target.value})
+    }
+
+    const handleSubmit = async (e) => {
+        e.preventDefault()
+        try {
+            await api.put(`/students/${editingStudent.id}`, form)
+            setShowForm(false)
+            setEditingStudent(null)
+            fetchStudents()
+        } catch (err) {
+            console.log(err)
+            alert("Error al actualizar")
+        }
+    }
+
   return (
     <AppLayout>
       <div className="pg-wrap">
@@ -120,7 +143,142 @@ export default function Students() {
             <p className="db-widget-sub">Inactivos en el sistema</p>
           </div>
         </div>
+        
+        {/* EDIT FORM */}
+        {showForm && (
 
+            <div
+            className="pg-card"
+            style={{
+                padding: "24px 28px",
+                marginBottom: "20px"
+            }}
+            >
+
+            <h5
+                style={{
+                fontFamily:
+                    "'Sora', sans-serif",
+
+                fontSize: 15,
+
+                fontWeight: 600,
+
+                marginBottom: 20
+                }}
+            >
+
+                Editar Alumno
+
+            </h5>
+
+
+            <form
+                onSubmit={handleSubmit}
+            >
+
+                <div className="module-form-grid">
+
+                {/* NOMBRE */}
+
+                <div className="module-form-group">
+
+                    <label className="modal-label">
+                    Nombre
+                    </label>
+
+                    <input
+                    className="pg-input"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    />
+
+                </div>
+
+
+                {/* EMAIL */}
+
+                <div className="module-form-group">
+
+                    <label className="modal-label">
+                    Email
+                    </label>
+
+                    <input
+                    className="pg-input"
+                    name="email"
+                    value={form.email}
+                    onChange={handleChange}
+                    />
+
+                </div>
+
+
+                {/* MATRICULA */}
+
+                <div className="module-form-group">
+
+                    <label className="modal-label">
+                    Matrícula
+                    </label>
+
+                    <input
+                    className="pg-input"
+                    name="studentNumber"
+                    value={form.studentNumber}
+                    onChange={handleChange}
+                    />
+
+                </div>
+
+                </div>
+
+
+                {/* BOTONES */}
+
+                <div
+                style={{
+                    display: "flex",
+                    gap: "12px",
+                    marginTop: "20px"
+                }}
+                >
+
+                <button
+                    type="submit"
+                    className="btn-primary"
+                >
+
+                    Guardar Cambios
+
+                </button>
+
+
+                <button
+                    type="button"
+                    className="btn-ghost"
+                    onClick={() => {
+
+                    setShowForm(false);
+
+                    setEditingStudent(null);
+
+                    }}
+                >
+
+                    Cancelar
+
+                </button>
+
+                </div>
+
+            </form>
+
+            </div>
+
+        )
+        }
 
         {/* SEARCH */}
         <div className="pg-card module-toolbar">
@@ -178,7 +336,10 @@ export default function Students() {
                         </td>
                         <td>
                           <div className="module-actions">
-                            <button className="module-btn-delete" onClick={() => handleDelete(student.id)}>Baja</button>
+                            <button className="module-btn-edit" onClick={() => handleEdit(student)}>Editar</button>
+                            <button className={student.status ? "module-btn-delete" : "module-btn-edit"} onClick={() => handleDelete(student.id)}>
+                                {student.status ? "Dar Baja" : "Activar"}
+                            </button>
                           </div>
                         </td>
                       </tr>
