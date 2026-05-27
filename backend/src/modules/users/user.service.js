@@ -4,30 +4,56 @@ const bcrypt = require('bcrypt');
 const { createAuditLog } = require('../../utils/audit.service');
 const db = require('../../config/firebase');
 
-// ─── Helpers de perfil ────────────────────────────────────────────────────────
+// ─── Helpers de perfil actualizados para recibir datos extras ─────────────────
 const splitName = (fullName = '') => {
   const parts = fullName.trim().split(' ');
   return { nombre: parts[0] || fullName, apaterno: parts[1] || '', amaterno: parts[2] || '' };
 };
 
-const createTeacherProfile = async (userId, name, email) => {
+const createTeacherProfile = async (userId, name, email, extraData = {}) => {
   const existing = await db.collection('teachers').where('userId', '==', userId).limit(1).get();
   if (!existing.empty) {
     await existing.docs[0].ref.update({ status: true });
     return;
   }
   const { nombre, apaterno, amaterno } = splitName(name);
-  await db.collection('teachers').add({ userId, nombre, apaterno, amaterno, email, ciudad: '', status: true, createdAt: new Date() });
+  
+  await db.collection('teachers').add({ 
+    userId, 
+    nombre, 
+    apaterno, 
+    amaterno, 
+    email, 
+    ciudad: extraData.ciudad || '', 
+    especialidad: extraData.especialidad || '', 
+    telefono: extraData.telefono || '',         
+    status: true, 
+    createdAt: new Date() 
+  });
 };
 
-const createStudentProfile = async (userId, name, email) => {
+const createStudentProfile = async (userId, name, email, extraData = {}) => {
   const existing = await db.collection('students').where('userId', '==', userId).limit(1).get();
   if (!existing.empty) {
     await existing.docs[0].ref.update({ status: true });
     return;
   }
   const { nombre, apaterno, amaterno } = splitName(name);
-  await db.collection('students').add({ userId, nombre, apaterno, amaterno, email, status: true, createdAt: new Date() });
+  
+  // Guardamos en la colección 'students' con TODOS los campos
+  await db.collection('students').add({ 
+    userId, 
+    nombre, 
+    apaterno, 
+    amaterno, 
+    email, 
+    // Aseguramos que la llave se llame studentNumber en Firebase
+    studentNumber: extraData.matricula || '', 
+    carrera: extraData.carrera || '', 
+    semestre: extraData.semestre || '', 
+    status: true, 
+    createdAt: new Date() 
+  });
 };
 
 const deactivateProfile = async (collection, userId) => {
@@ -50,27 +76,35 @@ const getUserById = async (id) => {
 };
 
 const createUser = async (userData, adminId) => {
-  const { error } = validateCreateUser(userData);
+  const { name, email, password, role } = userData;
+  const { error } = validateCreateUser({ name, email, password, role });
   if (error) throw new Error(error);
 
-  const exist = await userRepository.findByEmail(userData.email);
+  const exist = await userRepository.findByEmail(email);
   if (exist) throw new Error('El correo ya está en uso');
 
-  const hashedPassword = await bcrypt.hash(userData.password, 10);
+  const hashedPassword = await bcrypt.hash(password, 10);
 
+  // AQUÍ: El objeto newUser SOLO tiene los datos principales. 
+  // Nada de estudiante o docente se filtrará a tu tabla 'users'.
   const newUser = {
-    name:      userData.name,
-    email:     userData.email,
+    name,
+    email,
     password:  hashedPassword,
-    role:      userData.role || 'student',
+    role:      role || 'student',
     status:    'active',
     createdAt: new Date(),
   };
 
   const savedUser = await userRepository.save(newUser);
 
-  if (userData.role === 'teacher') await createTeacherProfile(savedUser.id, userData.name, userData.email);
-  if (userData.role === 'student') await createStudentProfile(savedUser.id, userData.name, userData.email);
+  // Mandamos userData completo (que incluye extraData) a los helpers
+  if (newUser.role === 'teacher') {
+    await createTeacherProfile(savedUser.id, name, email, userData);
+  }
+  if (newUser.role === 'student') {
+    await createStudentProfile(savedUser.id, name, email, userData);
+  }
 
   await createAuditLog(adminId, 'CREATE_USER', {
     targetUserId: savedUser.id, email: savedUser.email, role: savedUser.role,

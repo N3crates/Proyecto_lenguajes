@@ -1,48 +1,73 @@
 const db = require("../../config/firebase")
-const collection = db.collection("users")
+const usersCollection = db.collection("users")
+const studentsCollection = db.collection("students")
 
 const getAllStudents = async() => {
-    const snapshot = await collection.where("role", "==", "student").get()
-    return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }))
+    const snapshot = await studentsCollection.where("status", "==", true).get()
+    return snapshot.docs.map(doc => {
+        const data = doc.data()
+        return {
+            id:            doc.id,
+            name:          `${data.nombre} ${data.apaterno} ${data.amaterno}`.trim(),
+            email:         data.email,
+            studentNumber: data.studentNumber,
+            carrera:       data.carrera,
+            semestre:      data.semestre,
+            role:          "student",
+            status:        data.status,
+            userId:        data.userId,
+        }
+    })
 }
 
 const getStudentsById = async(id) => {
-    const doc = await collection.doc(id).get()
+    const doc = await studentsCollection.doc(id).get()
+    if (!doc.exists) return null
 
-    if(!doc.exists){
-        return null
+    const data = doc.data()
+    return {
+        id:            doc.id,
+        name:          `${data.nombre} ${data.apaterno} ${data.amaterno}`.trim(),
+        email:         data.email,
+        studentNumber: data.studentNumber,
+        carrera:       data.carrera,
+        semestre:      data.semestre,
+        role:          "student",
+        status:        data.status,
+        userId:        data.userId,
     }
-    const student = {
-        id: doc.id,
-        ...doc.data()
-    }
-    if(student.role !== "student") {
-        return null
-    }
-    return student
 }
 
 const updateStudent = async(id, studentData) => {
-    await collection.doc(id).update(studentData)
-    return {id}
+    const { name, email, ...rest } = studentData
+
+    let updatePayload = { ...rest }
+
+    // Si viene name completo lo dividimos para mantener consistencia en Firestore
+    if (name) {
+        const parts = name.trim().split(" ")
+        updatePayload.nombre   = parts[0] || ""
+        updatePayload.apaterno = parts[1] || ""
+        updatePayload.amaterno = parts.slice(2).join(" ") || ""
+    }
+
+    await studentsCollection.doc(id).update({
+        ...updatePayload,
+        updatedAt: new Date()
+    })
+    return { id }
 }
 
 const deleteStudent = async(id) => {
-    const doc = await collection.doc(id).get()
-    if(!doc.exists){
-        return null
-    }
+    const doc = await studentsCollection.doc(id).get()
+    if (!doc.exists) return null
 
     const student = doc.data()
-
-    await collection.doc(id).update({
+    await studentsCollection.doc(id).update({
         status: !student.status,
-        updateAt: new Date()
+        updatedAt: new Date()  // también corregí el typo "updateAt" → "updatedAt"
     })
-    return{id}
+    return { id }
 }
 
 module.exports = {

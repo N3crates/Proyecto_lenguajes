@@ -18,13 +18,25 @@ function Toast({ msg, type, onClose }) {
   return <div className={`pg-toast ${type}`}>{msg}</div>;
 }
 
-// ── Modal crear / editar usuario ─────────────────────────────────────────────
+// ── Modal crear / editar usuario — ACTUALIZADO CON CAMPOS DINÁMICOS ───────────
 function UserModal({ user, rolesList, onClose, onSaved }) {
   const isEdit = !!user;
   const [form, setForm] = useState(
     isEdit
       ? { name: user.name, email: user.email, role: user.role, status: user.status }
-      : { name: "", email: "", password: "", role: "student", status: "active" }
+      : { 
+          name: "", 
+          email: "", 
+          password: "", 
+          role: "student", 
+          status: "active",
+          ciudad: "",
+          especialidad: "", 
+          telefono: "",     
+          matricula: "",
+          carrera: "",
+          semestre: ""
+        }
   );
   const [loading, setLoading] = useState(false);
   const [error, setError]     = useState(null);
@@ -33,14 +45,40 @@ function UserModal({ user, rolesList, onClose, onSaved }) {
     setError(null);
     if (!form.name.trim() || !form.email.trim()) return setError("Nombre y correo son obligatorios.");
     if (!isEdit && !form.password) return setError("La contraseña es obligatoria.");
+    
+    // Validaciones opcionales para campos específicos al crear
+    if (!isEdit && form.role === 'student') {
+      if (!form.matricula.trim() || !form.carrera.trim() || !form.semestre.trim()) {
+        return setError("Matrícula, carrera y semestre son obligatorios para estudiantes.");
+      }
+    }
+    if (!isEdit && form.role === 'teacher') {
+      if (!form.ciudad.trim() || !form.especialidad.trim() || !form.telefono.trim()) {
+        return setError("Ciudad, especialidad y teléfono son obligatorios para docentes.");
+      }
+    }
+
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const url = isEdit ? `http://localhost:3000/api/users/${user.id || user.uid}` : "http://localhost:3000/api/users";
       const method = isEdit ? "PUT" : "POST";
+      
+      // ÚNICA declaración del body con TODOS los campos completos
       const body = isEdit
         ? { name: form.name, role: form.role, status: form.status }
-        : { name: form.name, email: form.email, password: form.password, role: form.role };
+        : { 
+            name: form.name, 
+            email: form.email, 
+            password: form.password, 
+            role: form.role,
+            ciudad: form.ciudad,
+            especialidad: form.especialidad,
+            telefono: form.telefono,         
+            matricula: form.matricula,
+            carrera: form.carrera,
+            semestre: form.semestre
+          };
 
       const res = await fetch(url, {
         method,
@@ -112,6 +150,48 @@ function UserModal({ user, rolesList, onClose, onSaved }) {
                 <option value="inactive">Inactivo</option>
               </select>
             </div>
+          )}
+
+          {/* ── SECCIÓN DINÁMICA: DOCENTES (Solo al crear) ── */}
+          {!isEdit && form.role === "teacher" && (
+            <>
+              <div className="modal-field">
+                <label className="modal-label">Ciudad</label>
+                <input className="pg-input" placeholder="Ej. Guanajuato"
+                  value={form.ciudad} onChange={e => setForm({ ...form, ciudad: e.target.value })} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">Especialidad</label>
+                <input className="pg-input" placeholder="Ej. Desarrollo Web, IA"
+                  value={form.especialidad} onChange={e => setForm({ ...form, especialidad: e.target.value })} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">Teléfono</label>
+                <input className="pg-input" placeholder="Ej. 4731234567"
+                  value={form.telefono} onChange={e => setForm({ ...form, telefono: e.target.value })} />
+              </div>
+            </>
+          )}
+
+          {/* ── SECCIÓN DINÁMICA: ESTUDIANTES (Solo al crear) ── */}
+          {!isEdit && form.role === "student" && (
+            <>
+              <div className="modal-field">
+                <label className="modal-label">Matrícula</label>
+                <input className="pg-input" placeholder="Ej. MAT-2026-001"
+                  value={form.matricula} onChange={e => setForm({ ...form, matricula: e.target.value })} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">Carrera</label>
+                <input className="pg-input" placeholder="Ej. Ingeniería en Sistemas"
+                  value={form.carrera} onChange={e => setForm({ ...form, carrera: e.target.value })} />
+              </div>
+              <div className="modal-field">
+                <label className="modal-label">Semestre</label>
+                <input className="pg-input" type="number" min="1" placeholder="Ej. 1"
+                  value={form.semestre} onChange={e => setForm({ ...form, semestre: e.target.value })} />
+              </div>
+            </>
           )}
         </div>
 
