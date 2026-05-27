@@ -13,14 +13,6 @@ const validateStudent = (studentData) => {
         errors.push("La matricula es obligatorio")
     }
 
-    if(!studentData.career){
-        errors.push("La carrera es obligatorio")
-    }
-
-    if(!studentData.semester){
-        errors.push("El semestre es obligatorio")
-    }
-
     return errors;
 }
 

@@ -19,7 +19,7 @@ const getStudentsById = async(id) => {
         id: doc.id,
         ...doc.data()
     }
-    if(!student.role !== "student") {
+    if(student.role !== "student") {
         return null
     }
     return student
@@ -31,9 +31,16 @@ const updateStudent = async(id, studentData) => {
 }
 
 const deleteStudent = async(id) => {
+    const doc = await collection.doc(id).get()
+    if(!doc.exists){
+        return null
+    }
+
+    const student = doc.data()
+
     await collection.doc(id).update({
-        status: false,
-        deletedAt: new Date()
+        status: !student.status,
+        updateAt: new Date()
     })
     return{id}
 }
