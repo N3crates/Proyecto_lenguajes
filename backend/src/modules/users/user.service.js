@@ -1,20 +1,41 @@
-/**
- * user.service.js — actualizado
- * 
- * Cuando se crea un usuario con role = 'teacher',
- * automáticamente se crea también un documento en la colección 'teachers'
- * con datos básicos y el userId enlazado.
- * 
- * Esto conecta las dos colecciones sin romper nada existente:
- * - groups/subjects siguen referenciando teacherId (colección teachers)
- * - ese teacherId ahora tiene un userId que apunta a la cuenta de login
- */
-
 const userRepository = require('./user.repository');
 const { validateCreateUser, validateStatus } = require('./user.validation');
 const bcrypt = require('bcrypt');
 const { createAuditLog } = require('../../utils/audit.service');
-const db = require('../../config/firebase'); // ← para crear el doc en teachers
+const db = require('../../config/firebase');
+
+// ─── Helpers de perfil ────────────────────────────────────────────────────────
+const splitName = (fullName = '') => {
+  const parts = fullName.trim().split(' ');
+  return { nombre: parts[0] || fullName, apaterno: parts[1] || '', amaterno: parts[2] || '' };
+};
+
+const createTeacherProfile = async (userId, name, email) => {
+  const existing = await db.collection('teachers').where('userId', '==', userId).limit(1).get();
+  if (!existing.empty) {
+    await existing.docs[0].ref.update({ status: true });
+    return;
+  }
+  const { nombre, apaterno, amaterno } = splitName(name);
+  await db.collection('teachers').add({ userId, nombre, apaterno, amaterno, email, ciudad: '', status: true, createdAt: new Date() });
+};
+
+const createStudentProfile = async (userId, name, email) => {
+  const existing = await db.collection('students').where('userId', '==', userId).limit(1).get();
+  if (!existing.empty) {
+    await existing.docs[0].ref.update({ status: true });
+    return;
+  }
+  const { nombre, apaterno, amaterno } = splitName(name);
+  await db.collection('students').add({ userId, nombre, apaterno, amaterno, email, status: true, createdAt: new Date() });
+};
+
+const deactivateProfile = async (collection, userId) => {
+  const snap = await db.collection(collection).where('userId', '==', userId).limit(1).get();
+  if (!snap.empty) await snap.docs[0].ref.update({ status: false });
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
 
 const getAllUsers = async () => {
   const users = await userRepository.findAll();
@@ -43,39 +64,16 @@ const createUser = async (userData, adminId) => {
     password:  hashedPassword,
     role:      userData.role || 'student',
     status:    'active',
-    createdAt: new Date()
+    createdAt: new Date(),
   };
 
   const savedUser = await userRepository.save(newUser);
 
-  // ── Si el rol es 'teacher', crear perfil académico en la colección teachers ──
-  if (userData.role === 'teacher') {
-    // Separamos el nombre en partes (por si el nombre viene completo)
-    const nameParts = (userData.name || '').trim().split(' ');
-    const nombre    = nameParts[0]  || userData.name;
-    const apaterno  = nameParts[1]  || '';
-    const amaterno  = nameParts[2]  || '';
-
-    const teacherDoc = {
-      userId:    savedUser.id,     // ← enlace con la colección users
-      nombre,
-      apaterno,
-      amaterno,
-      email:     userData.email,
-      ciudad:    '',
-      status:    true,
-      createdAt: new Date()
-      // Los demás campos (especialidad, etc.) los completa el admin
-      // desde la página de Teachers usando el botón "Editar"
-    };
-
-    await db.collection('teachers').add(teacherDoc);
-  }
+  if (userData.role === 'teacher') await createTeacherProfile(savedUser.id, userData.name, userData.email);
+  if (userData.role === 'student') await createStudentProfile(savedUser.id, userData.name, userData.email);
 
   await createAuditLog(adminId, 'CREATE_USER', {
-    targetUserId: savedUser.id,
-    email:        savedUser.email,
-    role:         savedUser.role
+    targetUserId: savedUser.id, email: savedUser.email, role: savedUser.role,
   });
 
   delete savedUser.password;
@@ -88,48 +86,21 @@ const updateUser = async (id, updateData, adminId) => {
 
   if (updateData.password) {
     updateData.password = await bcrypt.hash(updateData.password, 10);
-  } else { 
-    delete updateData.password; 
-  }
+  } else { delete updateData.password; }
 
   delete updateData.email;
 
-  // 1. Si el rol cambia A 'teacher' y no era teacher antes (Crear perfil)
-  if (updateData.role === 'teacher' && user.role !== 'teacher') {
-    const existing = await db.collection('teachers')
-      .where('userId', '==', id)
-      .limit(1)
-      .get();
+  const newRole = updateData.role;
+  const oldRole = user.role;
 
-    if (existing.empty) {
-      const nameParts = (user.name || '').trim().split(' ');
-      await db.collection('teachers').add({
-        userId:    id,
-        nombre:    nameParts[0] || user.name,
-        apaterno:  nameParts[1] || '',
-        amaterno:  nameParts[2] || '',
-        email:     user.email,
-        ciudad:    '',
-        status:    true,
-        createdAt: new Date()
-      });
-    } else {
-      // Si por alguna razón ya existía pero estaba inactivo, lo reactivamos
-      await existing.docs[0].ref.update({ status: true });
-    }
-  }
+  if (newRole && newRole !== oldRole) {
+    // ── Activar el perfil del nuevo rol ────────────────────────────────────
+    if (newRole === 'teacher') await createTeacherProfile(id, user.name, user.email);
+    if (newRole === 'student') await createStudentProfile(id, user.name, user.email);
 
-  // 2. Si el rol cambia DE 'teacher' a otra cosa (Inactivar perfil)
-  if (updateData.role && updateData.role !== 'teacher' && user.role === 'teacher') {
-    const teacherSnap = await db.collection('teachers')
-      .where('userId', '==', id)
-      .limit(1)
-      .get();
-      
-    if (!teacherSnap.empty) {
-      // Inactivamos al docente para que no aparezca en listas activas, pero conservamos su ID para el historial
-      await teacherSnap.docs[0].ref.update({ status: false });
-    }
+    // ── Inactivar el perfil del rol anterior ───────────────────────────────
+    if (oldRole === 'teacher') await deactivateProfile('teachers', id);
+    if (oldRole === 'student') await deactivateProfile('students', id);
   }
 
   await userRepository.update(id, updateData);
@@ -148,14 +119,14 @@ const changeUserStatus = async (id, status, adminId) => {
 
   await userRepository.update(id, { status });
 
-  // Sincronizar el status en el perfil de teacher si existe
-  const teacherSnap = await db.collection('teachers')
-    .where('userId', '==', id)
-    .limit(1)
-    .get();
-  if (!teacherSnap.empty) {
-    await teacherSnap.docs[0].ref.update({ status: status === 'active' });
-  }
+  // Sincronizar en ambas colecciones en paralelo
+  const boolStatus = status === 'active';
+  const [teacherSnap, studentSnap] = await Promise.all([
+    db.collection('teachers').where('userId', '==', id).limit(1).get(),
+    db.collection('students').where('userId', '==', id).limit(1).get(),
+  ]);
+  if (!teacherSnap.empty) await teacherSnap.docs[0].ref.update({ status: boolStatus });
+  if (!studentSnap.empty) await studentSnap.docs[0].ref.update({ status: boolStatus });
 
   await createAuditLog(adminId, 'CHANGE_USER_STATUS', { targetUserId: id, newStatus: status });
 
@@ -168,14 +139,13 @@ const deleteUser = async (id, adminId) => {
 
   await userRepository.remove(id);
 
-  // Si era teacher, desenlazar (no borrar para preservar histórico de grupos)
-  const teacherSnap = await db.collection('teachers')
-    .where('userId', '==', id)
-    .limit(1)
-    .get();
-  if (!teacherSnap.empty) {
-    await teacherSnap.docs[0].ref.update({ userId: null, status: false });
-  }
+  // Desenlazar ambos perfiles en paralelo (no borrar para preservar histórico)
+  const [teacherSnap, studentSnap] = await Promise.all([
+    db.collection('teachers').where('userId', '==', id).limit(1).get(),
+    db.collection('students').where('userId', '==', id).limit(1).get(),
+  ]);
+  if (!teacherSnap.empty) await teacherSnap.docs[0].ref.update({ userId: null, status: false });
+  if (!studentSnap.empty) await studentSnap.docs[0].ref.update({ userId: null, status: false });
 
   await createAuditLog(adminId, 'DELETE_USER', { targetUserId: id, email: user.email });
 

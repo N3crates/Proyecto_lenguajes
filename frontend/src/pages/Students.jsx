@@ -34,7 +34,10 @@ export default function Students() {
     }
   }
 
-  useEffect(() => {fetchStudents(); }, [])
+  useEffect(() => {
+    const load = async () => { await fetchStudents(); };
+    load(); 
+}, [])
 
   // =====================================
   // FILTER

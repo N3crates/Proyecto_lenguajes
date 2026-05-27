@@ -103,10 +103,10 @@ export default function Grades() {
 
   useEffect(() => {
 
-    fetchGrades();
-
-    fetchEnrollments();
-
+    const load = async () => {
+      await Promise.all([fetchGrades(), fetchEnrollments()]);
+    };
+    load();
   }, []);
 
 

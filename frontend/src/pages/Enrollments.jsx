@@ -71,7 +71,8 @@ export default function Enrollments() {
 
   useEffect(() => {
 
-    fetchEnrollments();
+    const load = async () => { await fetchEnrollments(); };
+    load();
 
   }, []);
 

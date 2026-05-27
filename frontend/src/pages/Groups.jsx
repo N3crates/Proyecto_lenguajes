@@ -38,8 +38,10 @@ export default function Groups() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { 
+    const load = async () => { await fetchAll(); };
+    load();
+  }, []);
 
   const getTeacherName = (id) => {
     const t = teachers.find(t => t.id === id);

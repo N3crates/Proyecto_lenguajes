@@ -30,8 +30,11 @@ export default function Subjects() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchSubjects(); }, []);
+
+  useEffect(() => { 
+    const load = async () => { await fetchSubjects(); };
+    load();
+  }, []);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();

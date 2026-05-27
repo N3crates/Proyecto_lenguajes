@@ -31,8 +31,10 @@ export default function Teachers() {
     }
   };
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchTeachers(); }, []);
+  useEffect(() => { 
+    const load = async () => { await fetchTeachers(); };
+    load();
+  }, []);
 
   // ── Búsqueda ──
   const filtered = useMemo(() => {
