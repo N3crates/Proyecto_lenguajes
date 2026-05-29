@@ -1,4 +1,3 @@
-// Importaciones necesarias para el componente
 import { useState, useEffect, useMemo } from "react";
 import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";

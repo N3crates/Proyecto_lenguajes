@@ -6,6 +6,7 @@ import "../styles/Teachers.css";
 const ITEMS_PER_PAGE = 8;
 
 export default function MyGroups() {
+  // Estados principales
   const [groups, setGroups] = useState([]);
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -13,15 +14,19 @@ export default function MyGroups() {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
 
+  // Usuario logueado desde localStorage
   const user = JSON.parse(localStorage.getItem("user") || "null");
 
+  // Funcion para obtener el perfil del docente y sus grupos
   const fetchAll = async () => {
     try {
       setLoading(true);
 
+      // 1. Obtener el perfil de docente usando el userId del login
       const teacherRes = await api.get(`/teachers/by-user/${user.id}`);
       const teacher = teacherRes.data.data;
 
+      // 2. Obtener los grupos del docente y las materias 
       const [groupsRes, subjectsRes] = await Promise.all([
         api.get(`/groups/teacher/${teacher.id}`),
         api.get("/subjects"),
@@ -36,14 +41,17 @@ export default function MyGroups() {
     }
   };
 
+  // Se ejecuta al montar el componente
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchAll(); }, []);
 
+  // Helper para obtener el nombre de la materia por id
   const getSubjectName = (id) => {
     const s = subjects.find(s => s.id === id);
     return s ? s.nombre : "—";
   };
 
+  // Filtro por busqueda de texto
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
     return groups.filter(g =>
@@ -54,18 +62,20 @@ export default function MyGroups() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [groups, search, subjects]);
 
+  // Calculo de paginacion
   const totalPages = Math.max(Math.ceil(filtered.length / ITEMS_PER_PAGE), 1);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
 
+  // Total de grupos activos para el banner
   const activeGroups = groups.filter(g => g.status).length;
 
   return (
     <AppLayout>
       <div className="pg-wrap">
 
-        {/* Header */}
+        {/* Encabezado de la pagina */}
         <div className="pg-head">
           <div>
             <h1 className="pg-title">Mis Grupos</h1>
@@ -74,27 +84,27 @@ export default function MyGroups() {
         </div>
 
         {/* Banner de bienvenida */}
-{!loading && (
-  <div className="db-widget g-indigo" style={{ padding: "20px 28px", display: "flex", alignItems: "center", gap: 14, borderRadius: "var(--radius)", marginBottom: 0 }}>
-    <span style={{ fontSize: 32 }}>👨‍🏫</span>
-    <div>
-      <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff" }}>
-        Bienvenido, {user.name}
-      </p>
-      <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.8)", marginTop: 4 }}>
-        Tienes <strong>{activeGroups}</strong> grupo{activeGroups !== 1 ? "s" : ""} activo{activeGroups !== 1 ? "s" : ""} asignado{activeGroups !== 1 ? "s" : ""} este ciclo.
-      </p>
-    </div>
-  </div>
-)}
+        {!loading && (
+          <div className="db-widget g-indigo" style={{ padding: "20px 28px", display: "flex", alignItems: "center", gap: 14, borderRadius: "var(--radius)", marginBottom: 0 }}>
+            <span style={{ fontSize: 32 }}>👨‍🏫</span>
+            <div>
+              <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#fff" }}>
+                Bienvenido, {user.name}
+              </p>
+              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.8)", marginTop: 4 }}>
+                Tienes <strong>{activeGroups}</strong> grupo{activeGroups !== 1 ? "s" : ""} activo{activeGroups !== 1 ? "s" : ""} asignado{activeGroups !== 1 ? "s" : ""} este ciclo.
+              </p>
+            </div>
+          </div>
+        )}
 
-        {/* Buscador */}
+        {/* Buscador por nombre, materia o ciclo */}
         <div className="pg-card module-toolbar">
           <div className="um-search-wrap">
             <Icon name="search" />
             <input
               className="um-search-input"
-              placeholder="Buscar por nombre, materia o ciclo…"
+              placeholder="Buscar por nombre, materia o ciclo..."
               value={search}
               onChange={handleSearch}
             />
@@ -106,7 +116,7 @@ export default function MyGroups() {
 
         {error && <div className="modal-error">{error}</div>}
 
-        {/* Tabla */}
+        {/* Tabla de grupos asignados */}
         <div className="pg-card module-table-card">
           <table className="module-table">
             <thead>
@@ -114,7 +124,7 @@ export default function MyGroups() {
                 <th>Nombre</th>
                 <th>Materia</th>
                 <th>Ciclo</th>
-                <th>Descripción</th>
+                <th>Descripcion</th>
                 <th>Status</th>
               </tr>
             </thead>
@@ -142,7 +152,7 @@ export default function MyGroups() {
           </table>
         </div>
 
-        {/* Paginación */}
+        {/* Paginacion */}
         {!loading && filtered.length > ITEMS_PER_PAGE && (
           <div className="module-pagination">
             <button className="page-btn" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
@@ -163,6 +173,7 @@ export default function MyGroups() {
           </div>
         )}
 
+        {/* Contador de resultados */}
         {!loading && filtered.length > 0 && (
           <p style={{ fontSize: 12.5, color: "var(--text-2)", textAlign: "center" }}>
             Mostrando {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} de {filtered.length} grupos

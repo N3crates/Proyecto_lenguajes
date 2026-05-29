@@ -1,6 +1,9 @@
+// Repositorio de grupos — acceso directo a Firestore
+
 const db = require("../../config/firebase")
 const collection = db.collection("groups")
 
+// Obtener todos los grupos de la coleccion
 const getAllGroups = async () => {
     const snapshot = await collection.get()
     return snapshot.docs.map(doc => ({
@@ -9,6 +12,7 @@ const getAllGroups = async () => {
     }))
 }
 
+// Crear un nuevo documento en la coleccion groups
 const createGroup = async (groupData) => {
     const response = await collection.add(groupData)
     return {
@@ -16,6 +20,7 @@ const createGroup = async (groupData) => {
     }
 }
 
+// Obtener un grupo por su id de documento
 const getGroupById = async (id) => {
     const doc = await collection.doc(id).get()
 
@@ -29,6 +34,7 @@ const getGroupById = async (id) => {
     }
 }
 
+// Obtener todos los grupos donde el teacherId coincida
 const getGroupsByTeacher = async (teacherId) => {
     const snapshot = await collection
         .where("teacherId", "==", teacherId)
@@ -40,11 +46,13 @@ const getGroupsByTeacher = async (teacherId) => {
     }))
 }
 
+// Actualizar los campos de un grupo por su id
 const updateGroup = async (id, groupData) => {
     await collection.doc(id).update(groupData)
     return { id }
 }
 
+// Baja logica — cambia status a false y registra la fecha de baja
 const deleteGroup = async (id) => {
     await collection.doc(id).update({
         status: false,
