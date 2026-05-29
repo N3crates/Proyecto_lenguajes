@@ -29,6 +29,19 @@ function Login() {
     // Accedemos a response.data.data porque tu controlador envía un objeto con la llave "data"
     const loginData = response.data.data; 
 
+    const token = loginData.accessToken;
+
+    const payload = JSON.parse(
+      atob(token.split('.')[1])
+    );
+
+    console.log("JWT Payload:", payload);
+
+    console.log(
+      "Permisos en JWT:",
+      payload.permissions
+    );
+
     login(loginData.user, loginData.accessToken);
 
     navigate("/dashboard");

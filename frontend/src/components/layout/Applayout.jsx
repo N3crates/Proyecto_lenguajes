@@ -168,9 +168,6 @@ export default function AppLayout({ children }) {
         </nav>
 
         <div className="al-sidebar-footer">
-          <button className="al-nav-item">
-            <Icon name="settings" /><span>Configuración</span>
-          </button>
           <div className="al-user-row">
             <div className="al-avatar">{getInitials(user.name)}</div>
             <div className="al-user-text">

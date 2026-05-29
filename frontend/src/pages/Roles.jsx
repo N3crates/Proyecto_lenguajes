@@ -11,7 +11,7 @@ const getMeta = (name) =>
   ROLE_META[name] || { label: name.charAt(0).toUpperCase() + name.slice(1), color: "rm-slate", icon: "tag" };
 
 const PERM_LABELS = {
-  //"view_dashboard":  "Ver Dashboard",
+  "view_dashboard":  "Ver Dashboard",
   "manage_users":    "Gestionar Usuarios",
   "manage_roles":    "Gestionar Roles",
   "manage_teachers":    "Gestionar Docentes",
@@ -22,7 +22,9 @@ const PERM_LABELS = {
   "manage_subjects":    "Gestionar Materias", 
   "view_own_grades": "Ver Mis Calificaciones",
   "view_own_groups": "Ver Mis Grupos",
-  //"view_enrollments":   "Ver Mis Inscripciones",
+  "view_enrollments":   "Ver Mis Inscripciones",
+  "manage_grades":   "Gestionar Calificaciones",
+  "view_audit":     "Ver Auditorías",
 };
 const permLabel = (p) => PERM_LABELS[p] || p;
 

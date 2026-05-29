@@ -95,13 +95,13 @@ const login = async (userData) => {
 
   // Generar JWT de acceso y refresh token.
   const accessToken = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, role: user.role, permissions },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   );
 
   const refreshToken = jwt.sign(
-    { id: user.id },
+    { id: user.id, email: user.email, role: user.role, permissions },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: '7d' }
   );
