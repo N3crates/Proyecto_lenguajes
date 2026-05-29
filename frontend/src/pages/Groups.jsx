@@ -1,4 +1,3 @@
-// Importaciones necesarias para el componente
 import { useState, useEffect, useMemo } from "react";
 import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
@@ -96,7 +95,7 @@ export default function Groups() {
     if (formErrors[name]) setFormErrors({ ...formErrors, [name]: null });
   };
 
-  // Envio del formulario — crear o editar
+  // Envio del formulario, crear o editar
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate(form);
@@ -129,7 +128,7 @@ export default function Groups() {
     setShowForm(true);
   };
 
-  // Baja logica del grupo
+  // Baja del grupo
   const handleDelete = async (id) => {
     if (!confirm("¿Dar de baja este grupo?")) return;
     try {

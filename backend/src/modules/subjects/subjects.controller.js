@@ -1,5 +1,6 @@
 const service = require("./subjects.service")
 
+// Obtener todas las materias
 const getSubjects = async (req, res) => {
     try {
         const subjects = await service.getSubjects()
@@ -15,6 +16,7 @@ const getSubjects = async (req, res) => {
     }
 }
 
+// Crear una nueva materia
 const createSubject = async (req, res) => {
     try {
         const response = await service.createSubject(req.body)
@@ -31,6 +33,7 @@ const createSubject = async (req, res) => {
     }
 }
 
+// Obtener una materia por su id
 const getSubjectById = async (req, res) => {
     try {
         const subject = await service.getSubjectById(req.params.id)
@@ -46,6 +49,7 @@ const getSubjectById = async (req, res) => {
     }
 }
 
+// Editar los datos de una materia por su id
 const updateSubject = async (req, res) => {
     try {
         const response = await service.updateSubject(req.params.id, req.body)
@@ -62,6 +66,7 @@ const updateSubject = async (req, res) => {
     }
 }
 
+// Baja de una materia por su id
 const deleteSubject = async (req, res) => {
     try {
         const response = await service.deleteSubject(req.params.id)
