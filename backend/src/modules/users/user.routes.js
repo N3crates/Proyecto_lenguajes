@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
-
 const userController = require('./user.controller');
 const authMiddleware = require('../../middlewares/auth.middleware');
-const checkRole = require('../../middlewares/role.middleware');
+const { checkRole, checkPermission } = require('../../middlewares/role.middleware');
 
-const adminOnly = [authMiddleware, checkRole(['admin'])];
+// Gestión de usuarios — requiere permiso, no rol fijo
+const userAccess = [authMiddleware, checkPermission('manage_users')];
 
-router.get('/', adminOnly, userController.getAllUsers);
-router.get('/:id', adminOnly, userController.getUserById);
-router.post('/', adminOnly, userController.createUser);
-router.put('/:id', adminOnly, userController.updateUser);
-router.patch('/:id/status', adminOnly, userController.changeUserStatus);
-router.delete('/:id', adminOnly, userController.deleteUser);
+router.get('/',              userAccess, userController.getAllUsers);
+router.get('/:id',           userAccess, userController.getUserById);
+router.post('/',             userAccess, userController.createUser);
+router.put('/:id',           userAccess, userController.updateUser);
+router.patch('/:id/status',  userAccess, userController.changeUserStatus);
+router.delete('/:id',        userAccess, userController.deleteUser);
 
 module.exports = router;

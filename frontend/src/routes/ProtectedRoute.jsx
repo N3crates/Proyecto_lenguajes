@@ -3,14 +3,22 @@ import { Navigate, Outlet } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
-const ProtectedRoute = () => {
+// permission es opcional; si se omite solo verifica autenticación
+const ProtectedRoute = ({ permission }) => {
   const { user } = useContext(AuthContext);
-  // Si no hay usuario, lo mandamos al inicio (Login)
-  if (!user) {
-    return <Navigate to="/login" replace />;
+
+  if (!user) return <Navigate to="/login" replace />;
+
+  if (permission) {
+    const perms = user.permissions || [];
+    if (user.role !== 'admin') {
+      // Acepta string "permiso" o array ["permiso1", "permiso2"]
+      const required = Array.isArray(permission) ? permission : [permission];
+      const hasAny = required.some(p => perms.includes(p));
+      if (!hasAny) return <Navigate to="/dashboard" replace />;
+    }
   }
 
-  // Si sí hay usuario, lo dejamos pasar al componente hijo (Dashboard)
   return <Outlet />;
 };
 
