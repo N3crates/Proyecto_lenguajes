@@ -51,8 +51,7 @@ export default function Students() {
 
     return (matchesSearch && matchesStatus)
   })
-}, [students, search, statusFilter])
-
+  }, [students, search, statusFilter])
 
   // =====================================
   // HANDLE DELETE
@@ -150,26 +149,6 @@ export default function Students() {
           <div className="pg-card">
             <h5>Editar Alumno</h5>
             <form onSubmit={handleSubmit}>
-                <div className="module-form-grid">
-
-                  {/* NOMBRE */}
-                  <div className="module-form-group">
-                    <label className="modal-label">Nombre</label>
-                    <input className="pg-input" name="name" value={form.name} onChange={handleChange}/>
-                  </div>
-
-                  {/* EMAIL */}
-                  <div className="module-form-group">
-                    <label className="modal-label">Email</label>
-                    <input className="pg-input" name="email" value={form.email} onChange={handleChange}/>
-                  </div>
-
-                  {/* MATRICULA */}
-                  <div className="module-form-group">
-                    <label className="modal-label">Matrícula</label>
-                    <input className="pg-input" name="studentNumber" value={form.studentNumber} onChange={handleChange}/>
-                  </div>
-                </div>
 
 <div className="module-form-grid">
 
@@ -303,7 +282,7 @@ export default function Students() {
                         <td>
                           <div className="module-actions">
                             <button className="module-btn-edit" onClick={() => handleEdit(student)}>Editar</button>
-                            <button className={student.status ? "module-btn-delete" : "module-btn-edit"} onClick={() => handleDelete(student.id)}>
+                            <button className={student.status ? "badge-inactive" : "badge-active"} onClick={() => handleDelete(student.id)}>
                                 {student.status ? "Dar Baja" : "Activar"}
                             </button>
                           </div>

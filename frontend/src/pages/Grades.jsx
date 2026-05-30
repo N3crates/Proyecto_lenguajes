@@ -522,7 +522,11 @@ export default function Grades() {
                         <td>
                           {grade.finalGrade || 0}
                         </td>
-                        <td>{grade.finalGrade >= 7 ? "Aprobado" : "Reprobado"}</td>
+                        <td>
+                          <span className={grade.finalGrade >=7 ? "badge-active" : "badge-inactive"}>
+                            {grade.finalGrade >= 7 ? "Aprobado" : "Reprobado"}
+                          </span>
+                        </td>
                         <td>
                           {grade.date || "-"}
                         </td>
@@ -547,8 +551,16 @@ export default function Grades() {
                         <td>{grade.partial3}</td>
                         <td>{grade.finalGrade}</td>
                         <td>{grade.date || "-"}</td>
-                        <td>{grade.finalGrade >= 7 ? "Aprobado" : "Reprobado"}</td>
-                        <td>{grade.status ? "Activo" : "Baja"}</td>
+                        <td>
+                          <span className={grade.finalGrade >=7 ? "badge-active" : "badge-inactive"}>
+                            {grade.finalGrade >= 7 ? "Aprobado" : "Reprobado"}
+                          </span>
+                        </td>
+                        <td>
+                          <span className={grade.status ? "badge-active" : "badge-inactive"}>
+                            {grade.status ? "Activo" : "Baja"}
+                          </span>
+                        </td>
                       </tr>
                     )
                   }
@@ -570,12 +582,20 @@ export default function Grades() {
                     <td>{grade.partial3}</td>
                     <td>{grade.finalGrade}</td>
                     <td>{grade.date || "-"}</td>
-                    <td>{grade.finalGrade >= 7 ? "Aprobado" : "Reprobado"}</td>
-                    <td>{grade.status ? "Activo" : "Baja"}</td>
+                    <td>
+                      <span className={grade.finalGrade >=7 ? "badge-active" : "badge-inactive"}>
+                        {grade.finalGrade >= 7 ? "Aprobado" : "Reprobado"}
+                      </span>
+                    </td>
+                    <td>
+                      <span className={grade.status ? "badge-active" : "badge-inactive"}>
+                        {grade.status ? "Activo" : "Baja"}
+                      </span>
+                    </td>
                     <td>
                       <div className="module-actions">
-                        <button className="btn-edit" onClick={() => handleEdit(grade)}>Editar</button>
-                        <button className="btn-delete" onClick={() => handleDelete(grade.id)}>
+                        <button className="module-btn-edit" onClick={() => handleEdit(grade)}>Editar</button>
+                        <button className={grade.status ? "badge-inactive" : "badge-active"} onClick={() => handleDelete(grade.id)}>
                           {grade.status ? "Baja" : "Activar"}
                         </button>
                       </div>
