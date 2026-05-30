@@ -72,7 +72,9 @@ export default function Students() {
     setForm({
         name: student.name || "",
         email: student.email || "",
-        studentNumber: student.studentNumber || ""
+        studentNumber: student.studentNumber || "",
+        carrera: student.carrera || "",
+        semestre: student.semestre || ""
     })
     setShowForm(true)
     }
@@ -169,6 +171,66 @@ export default function Students() {
                   </div>
                 </div>
 
+<div className="module-form-grid">
+
+  {/* NOMBRE */}
+  <div className="module-form-group">
+    <label className="modal-label">Nombre</label>
+    <input
+      className="pg-input"
+      name="name"
+      value={form.name}
+      onChange={handleChange}
+    />
+  </div>
+
+  {/* EMAIL */}
+  <div className="module-form-group">
+    <label className="modal-label">Email</label>
+    <input
+      className="pg-input"
+      name="email"
+      value={form.email}
+      onChange={handleChange}
+    />
+  </div>
+
+  {/* MATRICULA */}
+  <div className="module-form-group">
+    <label className="modal-label">Matrícula</label>
+    <input
+      className="pg-input"
+      name="studentNumber"
+      value={form.studentNumber}
+      onChange={handleChange}
+    />
+  </div>
+
+  {/* CARRERA */}
+  <div className="module-form-group">
+    <label className="modal-label">Carrera</label>
+    <input
+      className="pg-input"
+      name="carrera"
+      value={form.carrera}
+      onChange={handleChange}
+    />
+  </div>
+
+  {/* SEMESTRE */}
+  <div className="module-form-group">
+    <label className="modal-label">Semestre</label>
+    <input
+      className="pg-input"
+      name="semestre"
+      type="number"
+      min="1"
+      value={form.semestre}
+      onChange={handleChange}
+    />
+  </div>
+
+</div>
                 {/* BOTONES */}
                 <div>
                   <button type="submit" className="btn-primary">Guardar Cambios</button>
@@ -207,6 +269,8 @@ export default function Students() {
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Matrícula</th>
+                <th>Carrera</th>
+                <th>Semestre</th>
                 <th>Rol</th>
                 <th>Status</th>
                 <th>Acciones</th>
@@ -228,6 +292,8 @@ export default function Students() {
                         <td>{student.name}</td>
                         <td>{student.email}</td>
                         <td>{student.studentNumber || "Sin matrícula"}</td>
+                        <td>{student.carrera || "Sin carrera"}</td>
+                        <td>{student.semestre || "Sin Semestre"}</td>
                         <td>{student.role}</td>
                         <td>
                           <span className={student.status ? "badge-active" : "badge-inactive"}>

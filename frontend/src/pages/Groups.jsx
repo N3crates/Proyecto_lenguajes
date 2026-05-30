@@ -7,6 +7,7 @@ import "../styles/Dashboard.css";
 const ITEMS_PER_PAGE = 8;
 
 export default function Groups() {
+  // Estados principales
   const [groups, setGroups] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
@@ -14,6 +15,7 @@ export default function Groups() {
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("all"); // filtro por status
   const [showForm, setShowForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState(null);
   const [form, setForm] = useState({
@@ -21,6 +23,7 @@ export default function Groups() {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  // Funcion para obtener grupos, docentes y materias del backend
   const fetchAll = async () => {
     try {
       setLoading(true);
@@ -39,9 +42,11 @@ export default function Groups() {
     }
   };
 
+  // Se ejecuta al montar el componente
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchAll(); }, []);
 
+  // Helpers para obtener nombre del docente y materia por id
   const getTeacherName = (id) => {
     const t = teachers.find(t => t.id === id);
     return t ? `${t.nombre} ${t.apaterno}` : "—";
@@ -52,22 +57,28 @@ export default function Groups() {
     return s ? s.nombre : "—";
   };
 
+  // Filtro por busqueda de texto y status
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return groups.filter(g =>
-      g.nombre?.toLowerCase().includes(q) ||
-      g.ciclo?.toLowerCase().includes(q) ||
-      getTeacherName(g.teacherId).toLowerCase().includes(q) ||
-      getSubjectName(g.subjectId).toLowerCase().includes(q)
-    );
+    return groups.filter(g => {
+      const matchesSearch =
+        g.nombre?.toLowerCase().includes(q) ||
+        g.ciclo?.toLowerCase().includes(q) ||
+        getTeacherName(g.teacherId).toLowerCase().includes(q) ||
+        getSubjectName(g.subjectId).toLowerCase().includes(q);
+      const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? g.status : !g.status);
+      return matchesSearch && matchesStatus;
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groups, search, teachers, subjects]);
+  }, [groups, search, statusFilter, teachers, subjects]);
 
+  // Calculo de paginacion
   const totalPages = Math.max(Math.ceil(filtered.length / ITEMS_PER_PAGE), 1);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
 
+  // Validacion del formulario
   const validate = (data) => {
     const errors = {};
     if (!data.nombre.trim())    errors.nombre    = "El nombre es obligatorio";
@@ -77,12 +88,14 @@ export default function Groups() {
     return errors;
   };
 
+  // Manejo de cambios en los inputs del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
     if (formErrors[name]) setFormErrors({ ...formErrors, [name]: null });
   };
 
+  // Envio del formulario, crear o editar
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate(form);
@@ -103,6 +116,7 @@ export default function Groups() {
     }
   };
 
+  // Cargar datos del grupo en el formulario para editar
   const handleEdit = (group) => {
     setEditingGroup(group);
     setForm({
@@ -114,6 +128,7 @@ export default function Groups() {
     setShowForm(true);
   };
 
+  // Baja del grupo
   const handleDelete = async (id) => {
     if (!confirm("¿Dar de baja este grupo?")) return;
     try {
@@ -124,6 +139,7 @@ export default function Groups() {
     }
   };
 
+  // Cancelar edicion y limpiar formulario
   const handleCancel = () => {
     setShowForm(false);
     setEditingGroup(null);
@@ -135,17 +151,18 @@ export default function Groups() {
     <AppLayout>
       <div className="pg-wrap">
 
+        {/* Encabezado de la pagina */}
         <div className="pg-head">
           <div>
             <h1 className="pg-title">Grupos</h1>
-            <p className="pg-subtitle">Gestión de grupos escolares</p>
+            <p className="pg-subtitle">Gestion de grupos escolares</p>
           </div>
           <button className="btn-primary" onClick={() => setShowForm(true)}>
             <Icon name="plus" /> Nuevo Grupo
           </button>
         </div>
 
-        {/* STATS CARDS */}
+        {/* Tarjetas de estadisticas */}
         <div className="db-widgets">
           <div className="db-widget g-indigo">
             <div className="db-widget-top">
@@ -173,6 +190,7 @@ export default function Groups() {
           </div>
         </div>
 
+        {/* Formulario para crear o editar grupo */}
         {showForm && (
           <div className="pg-card" style={{ padding: "24px 28px" }}>
             <h5 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>
@@ -211,7 +229,7 @@ export default function Groups() {
                   {formErrors.subjectId && <span className="field-error">{formErrors.subjectId}</span>}
                 </div>
                 <div className="module-form-group full">
-                  <label className="modal-label">Descripción</label>
+                  <label className="modal-label">Descripcion</label>
                   <input className="pg-input" name="descripcion" value={form.descripcion} onChange={handleChange} />
                 </div>
               </div>
@@ -225,15 +243,42 @@ export default function Groups() {
           </div>
         )}
 
+        {/* Buscador y filtros por status */}
         <div className="pg-card module-toolbar">
           <div className="um-search-wrap">
             <Icon name="search" />
             <input
               className="um-search-input"
-              placeholder="Buscar por nombre, docente, materia o ciclo…"
+              placeholder="Buscar por nombre, docente, materia o ciclo..."
               value={search}
               onChange={handleSearch}
             />
+          </div>
+          {/* Botones de filtro por status */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 13, color: "var(--text-2)" }}>Status:</span>
+            {[
+              { label: "Todos", value: "all" },
+              { label: "Activo", value: "active" },
+              { label: "Baja", value: "inactive" },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => { setStatusFilter(opt.value); setPage(1); }}
+                style={{
+                  padding: "4px 14px",
+                  borderRadius: 999,
+                  border: "1px solid var(--border)",
+                  background: statusFilter === opt.value ? "var(--accent)" : "transparent",
+                  color: statusFilter === opt.value ? "#fff" : "var(--text)",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: statusFilter === opt.value ? 600 : 400,
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
           {search && (
             <button className="btn-ghost" onClick={() => { setSearch(""); setPage(1); }}>Limpiar</button>
@@ -242,6 +287,7 @@ export default function Groups() {
 
         {error && <div className="modal-error">{error}</div>}
 
+        {/* Tabla de grupos */}
         <div className="pg-card module-table-card">
           <table className="module-table">
             <thead>
@@ -284,6 +330,7 @@ export default function Groups() {
           </table>
         </div>
 
+        {/* Paginacion */}
         {!loading && filtered.length > ITEMS_PER_PAGE && (
           <div className="module-pagination">
             <button className="page-btn" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
@@ -300,6 +347,7 @@ export default function Groups() {
           </div>
         )}
 
+        {/* Contador de resultados */}
         {!loading && filtered.length > 0 && (
           <p style={{ fontSize: 12.5, color: "var(--text-2)", textAlign: "center" }}>
             Mostrando {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} de {filtered.length} grupos

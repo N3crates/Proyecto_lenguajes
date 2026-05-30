@@ -1,5 +1,6 @@
 const service = require("./teacher.service")
 
+// Obtener todos los docentes
 const getTeachers = async (req, res) => {
     try {
         const teachers = await service.getTeachers()
@@ -15,6 +16,7 @@ const getTeachers = async (req, res) => {
     }
 }
 
+// Crear un nuevo docente
 const createTeacher = async (req, res) => {
     try {
         const response = await service.createTeacher(req.body)
@@ -31,6 +33,7 @@ const createTeacher = async (req, res) => {
     }
 }
 
+// Obtener un docente por su id
 const getTeacherById = async (req, res) => {
     try {
         const teacher = await service.getTeacherById(req.params.id)
@@ -46,6 +49,7 @@ const getTeacherById = async (req, res) => {
     }
 }
 
+// Editar los datos de un docente por su id
 const updateTeacher = async (req, res) => {
     try {
         const response = await service.updateTeacher(req.params.id, req.body)
@@ -62,6 +66,7 @@ const updateTeacher = async (req, res) => {
     }
 }
 
+// Baja de un docente por su id
 const deleteTeacher = async (req, res) => {
     try {
         const response = await service.deleteTeacher(req.params.id)
@@ -78,6 +83,7 @@ const deleteTeacher = async (req, res) => {
     }
 }
 
+// Obtener el perfil de docente usando el userId del usuario que esta logeado
 const getTeacherByUserId = async (req, res) => {
     try {
         const teacher = await service.getTeacherByUserId(req.params.userId)

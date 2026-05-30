@@ -1,5 +1,8 @@
+// Controlador de grupos — recibe las peticiones HTTP y llama al service
+
 const service = require("./groups.service")
 
+// Obtener todos los grupos
 const getGroups = async (req, res) => {
     try {
         const groups = await service.getGroups()
@@ -15,6 +18,7 @@ const getGroups = async (req, res) => {
     }
 }
 
+// Crear un nuevo grupo
 const createGroup = async (req, res) => {
     try {
         const response = await service.createGroup(req.body)
@@ -31,6 +35,7 @@ const createGroup = async (req, res) => {
     }
 }
 
+// Obtener un grupo por su id
 const getGroupById = async (req, res) => {
     try {
         const group = await service.getGroupById(req.params.id)
@@ -46,6 +51,7 @@ const getGroupById = async (req, res) => {
     }
 }
 
+// Obtener todos los grupos asignados a un docente por su teacherId
 const getGroupsByTeacher = async (req, res) => {
     try {
         const groups = await service.getGroupsByTeacher(req.params.teacherId)
@@ -61,6 +67,7 @@ const getGroupsByTeacher = async (req, res) => {
     }
 }
 
+// Actualizar los datos de un grupo por su id
 const updateGroup = async (req, res) => {
     try {
         const response = await service.updateGroup(req.params.id, req.body)
@@ -77,6 +84,7 @@ const updateGroup = async (req, res) => {
     }
 }
 
+// Baja logica de un grupo por su id
 const deleteGroup = async (req, res) => {
     try {
         const response = await service.deleteGroup(req.params.id)

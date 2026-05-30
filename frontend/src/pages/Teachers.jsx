@@ -7,11 +7,13 @@ import "../styles/Dashboard.css";
 const ITEMS_PER_PAGE = 8;
 
 export default function Teachers() {
+  // Estados principales
   const [teachers, setTeachers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("all"); // filtro por status
   const [showForm, setShowForm] = useState(false);
   const [editingTeacher, setEditingTeacher] = useState(null);
   const [form, setForm] = useState({
@@ -20,6 +22,7 @@ export default function Teachers() {
   });
   const [formErrors, setFormErrors] = useState({});
 
+  // Funcion para obtener todos los docentes del backend
   const fetchTeachers = async () => {
     try {
       setLoading(true);
@@ -32,42 +35,51 @@ export default function Teachers() {
     }
   };
 
+  // Se ejecuta al montar el componente
   // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { fetchTeachers(); }, []);
 
+  // Filtro por busqueda de texto y status
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
-    return teachers.filter(t =>
-      `${t.nombre} ${t.apaterno} ${t.amaterno}`.toLowerCase().includes(q) ||
-      t.email?.toLowerCase().includes(q) ||
-      t.especialidad?.toLowerCase().includes(q) ||
-      t.ciudad?.toLowerCase().includes(q)
-    );
-  }, [teachers, search]);
+    return teachers.filter(t => {
+      const matchesSearch =
+        `${t.nombre} ${t.apaterno} ${t.amaterno}`.toLowerCase().includes(q) ||
+        t.email?.toLowerCase().includes(q) ||
+        t.especialidad?.toLowerCase().includes(q) ||
+        t.ciudad?.toLowerCase().includes(q);
+      const matchesStatus = statusFilter === "all" || (statusFilter === "active" ? t.status : !t.status);
+      return matchesSearch && matchesStatus;
+    });
+  }, [teachers, search, statusFilter]);
 
+  // Calculo de paginacion
   const totalPages = Math.max(Math.ceil(filtered.length / ITEMS_PER_PAGE), 1);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
 
+  // Validacion del formulario
   const validate = (data) => {
     const errors = {};
     if (!data.nombre.trim())        errors.nombre       = "El nombre es obligatorio";
     if (!data.apaterno.trim())      errors.apaterno     = "El apellido paterno es obligatorio";
     if (!data.email.trim())         errors.email        = "El email es obligatorio";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email))
-                                    errors.email        = "El email no es válido";
-    if (!data.telefono.trim())      errors.telefono     = "El teléfono es obligatorio";
+                                    errors.email        = "El email no es valido";
+    if (!data.telefono.trim())      errors.telefono     = "El telefono es obligatorio";
     if (!data.especialidad.trim())  errors.especialidad = "La especialidad es obligatoria";
     return errors;
   };
 
+  // Manejo de cambios en los inputs del formulario
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm({ ...form, [name]: value });
     if (formErrors[name]) setFormErrors({ ...formErrors, [name]: null });
   };
 
+  // Envio del formulario — solo edicion
   const handleSubmit = async (e) => {
     e.preventDefault();
     const errors = validate(form);
@@ -86,6 +98,7 @@ export default function Teachers() {
     }
   };
 
+  // Cargar datos del docente en el formulario para editar
   const handleEdit = (teacher) => {
     setEditingTeacher(teacher);
     setForm({
@@ -98,6 +111,7 @@ export default function Teachers() {
     setShowForm(true);
   };
 
+  // Baja logica del docente
   const handleDelete = async (id) => {
     if (!confirm("¿Dar de baja este docente?")) return;
     try {
@@ -108,6 +122,7 @@ export default function Teachers() {
     }
   };
 
+  // Cancelar edicion y limpiar formulario
   const handleCancel = () => {
     setShowForm(false);
     setEditingTeacher(null);
@@ -119,15 +134,15 @@ export default function Teachers() {
     <AppLayout>
       <div className="pg-wrap">
 
-        {/* Header */}
+        {/* Encabezado de la pagina */}
         <div className="pg-head">
           <div>
             <h1 className="pg-title">Docentes</h1>
-            <p className="pg-subtitle">Gestión del personal docente</p>
+            <p className="pg-subtitle">Gestion del personal docente</p>
           </div>
         </div>
 
-        {/* STATS CARDS */}
+        {/* Tarjetas de estadisticas */}
         <div className="db-widgets">
           <div className="db-widget g-indigo">
             <div className="db-widget-top">
@@ -155,7 +170,7 @@ export default function Teachers() {
           </div>
         </div>
 
-        {/* Formulario — solo aparece al editar */}
+        {/* Formulario de edicion — solo aparece al editar */}
         {showForm && (
           <div className="pg-card" style={{ padding: "24px 28px" }}>
             <h5 style={{ fontFamily: "'Sora', sans-serif", fontSize: 15, fontWeight: 600, marginBottom: 20 }}>
@@ -183,7 +198,7 @@ export default function Teachers() {
                   {formErrors.email && <span className="field-error">{formErrors.email}</span>}
                 </div>
                 <div className="module-form-group">
-                  <label className="modal-label">Teléfono *</label>
+                  <label className="modal-label">Telefono *</label>
                   <input className={`pg-input ${formErrors.telefono ? "input-error" : ""}`} name="telefono" value={form.telefono} onChange={handleChange} />
                   {formErrors.telefono && <span className="field-error">{formErrors.telefono}</span>}
                 </div>
@@ -205,16 +220,42 @@ export default function Teachers() {
           </div>
         )}
 
-        {/* Buscador */}
+        {/* Buscador y filtros por status */}
         <div className="pg-card module-toolbar">
           <div className="um-search-wrap">
             <Icon name="search" />
             <input
               className="um-search-input"
-              placeholder="Buscar por nombre, email, especialidad o ciudad…"
+              placeholder="Buscar por nombre, email, especialidad o ciudad..."
               value={search}
               onChange={handleSearch}
             />
+          </div>
+          {/* Botones de filtro por status */}
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <span style={{ fontSize: 13, color: "var(--text-2)" }}>Status:</span>
+            {[
+              { label: "Todos", value: "all" },
+              { label: "Activo", value: "active" },
+              { label: "Baja", value: "inactive" },
+            ].map(opt => (
+              <button
+                key={opt.value}
+                onClick={() => { setStatusFilter(opt.value); setPage(1); }}
+                style={{
+                  padding: "4px 14px",
+                  borderRadius: 999,
+                  border: "1px solid var(--border)",
+                  background: statusFilter === opt.value ? "var(--accent)" : "transparent",
+                  color: statusFilter === opt.value ? "#fff" : "var(--text)",
+                  cursor: "pointer",
+                  fontSize: 13,
+                  fontWeight: statusFilter === opt.value ? 600 : 400,
+                }}
+              >
+                {opt.label}
+              </button>
+            ))}
           </div>
           {search && (
             <button className="btn-ghost" onClick={() => { setSearch(""); setPage(1); }}>Limpiar</button>
@@ -223,14 +264,14 @@ export default function Teachers() {
 
         {error && <div className="modal-error">{error}</div>}
 
-        {/* Tabla */}
+        {/* Tabla de docentes */}
         <div className="pg-card module-table-card">
           <table className="module-table">
             <thead>
               <tr>
                 <th>Nombre</th>
                 <th>Email</th>
-                <th>Teléfono</th>
+                <th>Telefono</th>
                 <th>Especialidad</th>
                 <th>Ciudad</th>
                 <th>Status</th>
@@ -268,6 +309,7 @@ export default function Teachers() {
           </table>
         </div>
 
+        {/* Paginacion */}
         {!loading && filtered.length > ITEMS_PER_PAGE && (
           <div className="module-pagination">
             <button className="page-btn" onClick={() => setPage(p => Math.max(p - 1, 1))} disabled={page === 1}>
@@ -284,6 +326,7 @@ export default function Teachers() {
           </div>
         )}
 
+        {/* Contador de resultados */}
         {!loading && filtered.length > 0 && (
           <p style={{ fontSize: 12.5, color: "var(--text-2)", textAlign: "center" }}>
             Mostrando {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} de {filtered.length} docentes
