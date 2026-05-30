@@ -109,9 +109,11 @@ export default function Grades() {
     const q = search.toLowerCase()
     let data = grades
     if(user?.role === "student"){
+      const studentDoc = students.find(s => s.userId === user.id)
       data = grades.filter(grade => {
+        if(!studentDoc) return false
         const enrollment = enrollments.find(e => e.id === grade.enrollmentId)
-        return (enrollment?.studentId === user.id)
+        return (enrollment?.studentId === studentDoc.id)
     })
     }
     if(user?.role === "teacher"){data = grades.filter(grade => {
@@ -137,7 +139,7 @@ export default function Grades() {
   const student = (studentObj?.name || "").toLowerCase()
   const subject = (subjectObj?.name || subjectObj?.nombre || "").toLowerCase()
   return (student.toLowerCase().includes(q) || subject.toLowerCase().includes(q))})}, 
-    [grades, enrollments, search, user])
+    [grades, enrollments, students, teachers, groups, search, user])
   
   const studentStats = useMemo(() => {
     if(user?.role !== "student") {return null}

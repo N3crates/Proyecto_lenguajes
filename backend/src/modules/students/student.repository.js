@@ -3,7 +3,7 @@ const usersCollection = db.collection("users")
 const studentsCollection = db.collection("students")
 
 const getAllStudents = async() => {
-    const snapshot = await studentsCollection.where("status", "==", true).get()
+    const snapshot = await studentsCollection.get()
     return snapshot.docs.map(doc => {
         const data = doc.data()
         return {

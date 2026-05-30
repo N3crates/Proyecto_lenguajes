@@ -9,10 +9,10 @@ const teacherAccess = [authMiddleware, checkPermission('manage_teachers')]
 //Solo authMiddleware
 router.get("/by-user/:userId", authMiddleware, controller.getTeacherByUserId)
 
-router.get("/",    teacherAccess, controller.getTeachers)
-router.get("/:id", teacherAccess, controller.getTeacherById)
-router.post("/",   teacherAccess, controller.createTeacher)
-router.put("/:id", teacherAccess, controller.updateTeacher)
-router.delete("/:id", teacherAccess, controller.deleteTeacher)
+router.get("/",    authMiddleware, controller.getTeachers)
+router.get("/:id", authMiddleware, controller.getTeacherById)
+router.post("/",   [authMiddleware, checkPermission('manage_teachers')], controller.createTeacher)
+router.put("/:id", [authMiddleware, checkPermission('manage_teachers')], controller.updateTeacher)
+router.delete("/:id", [authMiddleware, checkPermission('manage_teachers')], controller.deleteTeacher)
 
 module.exports = router
