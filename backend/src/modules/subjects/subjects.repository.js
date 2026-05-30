@@ -32,13 +32,21 @@ const getSubjectById = async (id) => {
     }
 }
 
+// Buscar una materia por su clave para evitar duplicados
+const getSubjectByClave = async (clave) => {
+    const snapshot = await collection.where("clave", "==", clave).limit(1).get()
+    if (snapshot.empty) return null
+    const doc = snapshot.docs[0]
+    return { id: doc.id, ...doc.data() }
+}
+
 // Actualizar los campos de una materia por su id
 const updateSubject = async (id, subjectData) => {
     await collection.doc(id).update(subjectData)
     return { id }
 }
 
-// Baja de materia, cambia status a false y registra la fecha de baja
+// Baja logica, cambia status a false y registra la fecha de baja
 const deleteSubject = async (id) => {
     await collection.doc(id).update({
         status: false,
@@ -51,6 +59,7 @@ module.exports = {
     getAllSubjects,
     createSubject,
     getSubjectById,
+    getSubjectByClave,
     updateSubject,
     deleteSubject
 }

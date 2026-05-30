@@ -1,3 +1,4 @@
+// Importaciones necesarias para el componente
 import { useState, useEffect, useMemo } from "react";
 import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
@@ -11,9 +12,10 @@ export default function Subjects() {
   const [subjects, setSubjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(""); // mensaje de exito
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("all"); // filtro por status
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [editingSubject, setEditingSubject] = useState(null);
   const [form, setForm] = useState({
@@ -91,6 +93,9 @@ export default function Subjects() {
       } else {
         await api.post("/subjects", form);
       }
+      // Mostrar mensaje de exito por 3 segundos
+      setSuccessMsg(editingSubject ? "Materia actualizada correctamente" : "Materia creada correctamente");
+      setTimeout(() => setSuccessMsg(""), 3000);
       setShowForm(false);
       setEditingSubject(null);
       setForm({ nombre: "", clave: "", creditos: "", semestre: "", descripcion: "" });
@@ -118,6 +123,9 @@ export default function Subjects() {
     if (!confirm("¿Dar de baja esta materia?")) return;
     try {
       await api.delete(`/subjects/${id}`);
+      // Mostrar mensaje de exito por 3 segundos
+      setSuccessMsg("Materia dada de baja correctamente");
+      setTimeout(() => setSuccessMsg(""), 3000);
       fetchSubjects();
     } catch (err) {
       alert(err.response?.data?.message || "Error al dar de baja");
@@ -260,7 +268,9 @@ export default function Subjects() {
           )}
         </div>
 
+        {/* Mensajes de error y exito */}
         {error && <div className="modal-error">{error}</div>}
+        {successMsg && <div className="modal-success">{successMsg}</div>}
 
         {/* Tabla de materias */}
         <div className="pg-card module-table-card">
