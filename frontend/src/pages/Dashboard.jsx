@@ -50,16 +50,20 @@ const buildWidgets = (stats, role) => {
 // ─── Accesos rápidos por rol ──────────────────────────────────────────────────
 const quickByRole = {
   admin:   [
+    { label: "Perfil",           icon: "user",      path: "/profile"   },
     { label: "Usuarios",         icon: "users",     path: "/users"     },
     { label: "Roles y Permisos", icon: "shield",    path: "/roles"     },
     { label: "Auditoría",        icon: "clipboard", path: "/audit"     },
-    { label: "Calificaciones",   icon: "star",      path: "/grades"    },
+    { label: "Docentes",         icon: "user",      path: "/teachers"  },
+    { label: "Alumnos",          icon: "users",     path: "/students"  },
   ],
   teacher: [
+    { label: "Perfil",           icon: "user",      path: "/profile"           },
     { label: "Mis Grupos",       icon: "book",      path: "/groups/my-groups"  },
-    { label: "Calificaciones",   icon: "star",      path: "/grades/capture"    },
+    { label: "Calificaciones",   icon: "star",      path: "/grades"    },
   ],
   student: [
+    { label: "Perfil",             icon: "user",    path: "/profile"           },
     { label: "Mis Calificaciones", icon: "star",    path: "/my-grades"         },
     { label: "Mis Inscripciones",  icon: "book",    path: "/enrollments"       },
   ],
