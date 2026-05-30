@@ -35,9 +35,10 @@ export default function Teachers() {
     }
   };
 
-  // Se ejecuta al montar el componente
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchTeachers(); }, []);
+  useEffect(() => { 
+    const load = async () => { await fetchTeachers(); };
+    load();
+  }, []);
 
   // Filtro por busqueda de texto y status
   const filtered = useMemo(() => {

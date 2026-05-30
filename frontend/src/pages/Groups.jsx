@@ -43,8 +43,10 @@ export default function Groups() {
   };
 
   // Se ejecuta al montar el componente
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { 
+    const load = async () => { await fetchAll(); };
+    load();
+  }, []);
 
   // Helpers para obtener nombre del docente y materia por id
   const getTeacherName = (id) => {

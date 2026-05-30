@@ -2,9 +2,49 @@ const authRepository = require('./auth.repository');
 const { validateRegister, validateLogin, validateChangePassword } = require('./auth.validation');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const db = require('../../config/firebase');
 
 // Servicio de autenticación que maneja el registro, inicio de sesión,
 // cambio de contraseña y renovación de tokens.
+
+// Permisos por defecto para los 3 roles base (fallback si no están en Firestore)
+const DEFAULT_PERMISSIONS = {
+  admin: [
+    'view_dashboard',
+    'manage_users', 'manage_roles', 'view_audit',
+    'manage_teachers', 'manage_students', 'manage_enrollments',
+    'manage_subjects', 'manage_groups', 'manage_grades',
+  ],
+  teacher: [
+    'view_dashboard',
+    'view_own_groups',
+    'manage_grades',
+  ],
+  student: [
+    'view_dashboard',
+    'view_own_grades',
+    'view_enrollments',
+  ],
+};
+
+// Helper: obtiene los permisos del rol desde Firestore
+const getRolePermissions = async (roleName) => {
+  const snap = await db.collection('roles')
+    .where('name', '==', roleName)
+    .limit(1)
+    .get();
+  
+  console.log(`Buscando rol: ${roleName}, encontrado: ${!snap.empty}`);
+
+  if (!snap.empty) {
+    const perms = snap.docs[0].data().permissions;
+    console.log('Permisos encontrados:', perms);
+    if (Array.isArray(perms) && perms.length > 0) return perms;
+  }
+
+  // Fallback a permisos por defecto
+  return DEFAULT_PERMISSIONS[roleName] || ['view_dashboard'];
+};
 
 const register = async (userData) => {
   // Validar los datos de entrada según las reglas definidas en auth.validation.
@@ -51,15 +91,17 @@ const login = async (userData) => {
   const isMatch = await bcrypt.compare(userData.password, user.password);
   if (!isMatch) throw new Error('Credenciales inválidas');
 
+  const permissions = await getRolePermissions(user.role);
+
   // Generar JWT de acceso y refresh token.
   const accessToken = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, role: user.role, permissions },
     process.env.JWT_SECRET,
     { expiresIn: '1h' }
   );
 
   const refreshToken = jwt.sign(
-    { id: user.id },
+    { id: user.id, email: user.email, role: user.role, permissions },
     process.env.JWT_REFRESH_SECRET,
     { expiresIn: '7d' }
   );
@@ -67,7 +109,7 @@ const login = async (userData) => {
   return {
     accessToken,
     refreshToken,
-    user: { id: user.id, name: user.name, email: user.email, role: user.role }
+    user: { id: user.id, name: user.name, email: user.email, role: user.role, permissions }
   };
 };
 
@@ -103,6 +145,8 @@ const refreshTokenService = async (oldRefreshToken) => {
   if (user.status === 'inactive' || user.isActive === false) {
     throw new Error('Cuenta desactivada');
   }
+
+  const permissions = await getRolePermissions(user.role);
 
   // Generar un nuevo token de acceso válido por 1 hora.
   const newAccessToken = jwt.sign(

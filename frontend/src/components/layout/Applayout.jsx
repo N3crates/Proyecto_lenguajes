@@ -29,6 +29,7 @@ export const Icon = ({ name }) => {
 };
 
 // ─── Navegación completa por rol ──────────────────────────────────────────────
+/*
 const navByRole = {
   admin: [
     { label: "Inicio",           icon: "home",      path: "/dashboard",  section: null },
@@ -56,6 +57,7 @@ const navByRole = {
     { label: "Mis Inscripciones",  icon: "book", path: "/enrollments",section: null },
   ],
 };
+*/
 
 const roleLabel = { admin: "Administrador", teacher: "Docente", student: "Estudiante" };
 const roleColor = { admin: "role-red", teacher: "role-indigo", student: "role-teal" };
@@ -63,18 +65,69 @@ const roleColor = { admin: "role-red", teacher: "role-indigo", student: "role-te
 const getInitials = (name = "") =>
   name.split(" ").slice(0, 2).map(w => w[0]).join("").toUpperCase() || "U";
 
+// ─── Mapa permiso → items de navegación ──────────────────────────────────────
+const NAV_BY_PERMISSION = {
+  __always__: [
+    { label: "Inicio",    icon: "home", path: "/dashboard", section: null },
+    { label: "Mi Perfil", icon: "user", path: "/profile",   section: null },
+  ],
+  // Admin
+  manage_users:       [{ label: "Usuarios",          icon: "users",     path: "/users",             section: "Administración" }],
+  manage_roles:       [{ label: "Roles y Permisos",  icon: "shield",    path: "/roles",             section: "Administración" }],
+  view_audit:         [{ label: "Auditoría",         icon: "clipboard", path: "/audit",             section: "Administración" }],
+  // Escolar
+  manage_teachers:    [{ label: "Docentes",          icon: "user",      path: "/teachers",          section: "Escolar"        }],
+  manage_students:    [{ label: "Alumnos",           icon: "users",     path: "/students",          section: "Escolar"        }],
+  manage_enrollments: [{ label: "Inscripciones",     icon: "calendar",  path: "/enrollments",       section: "Escolar"        }],
+  // Académico
+  manage_subjects:    [{ label: "Materias",          icon: "book",      path: "/subjects",          section: "Académico"      }],
+  manage_groups:      [{ label: "Grupos",            icon: "book",      path: "/groups",            section: "Académico"      }],
+  manage_grades:      [{ label: "Calificaciones",    icon: "star",      path: "/grades",            section: "Académico"      }],
+  // Teacher
+  view_own_groups:    [{ label: "Mis Grupos",        icon: "book",      path: "/groups/my-groups",  section: "Académico"      }],
+  // Student
+  view_own_grades:    [{ label: "Mis Calificaciones",icon: "star",      path: "/my-grades",         section: "Escolar"        }],
+  view_enrollments:   [{ label: "Mis Inscripciones", icon: "calendar",  path: "/enrollments",       section: "Escolar"        }], // Cambiar a /my-enrollments si se hace esa página
+  view_grades: [{ label: "Calificaciones", icon: "star", path: "/grades", section: "Académico" }],
+};
+
+const buildNavItems = (permissions = []) => {
+  const seen  = new Set();
+  const items = [];
+
+  // Siempre primero
+  NAV_BY_PERMISSION.__always__.forEach(item => {
+    seen.add(item.path);
+    items.push(item);
+  });
+
+  // Por cada permiso del usuario
+  permissions.forEach(perm => {
+    (NAV_BY_PERMISSION[perm] || []).forEach(item => {
+      if (!seen.has(item.path)) {
+        seen.add(item.path);
+        items.push(item);
+      }
+    });
+  });
+
+  return items;
+};
+
 // ═══════════════════════════════════════════════════════════════════════════════
 export default function AppLayout({ children }) {
-  const navigate  = useNavigate();
-  const location  = useLocation();
-  const user      = JSON.parse(localStorage.getItem("user") || "null") || { name: "Usuario", role: "student" };
-  const navItems  = navByRole[user.role] || navByRole.student;
+  const navigate = useNavigate();
+  const location = useLocation();
+  const user     = JSON.parse(localStorage.getItem("user") || "null")
+                  || { name: "Usuario", role: "student", permissions: [] };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/");
   };
+
+  const navItems = buildNavItems(user.permissions || []);
 
   // Agrupar por sección
   const grouped = navItems.reduce((acc, item) => {
@@ -115,9 +168,6 @@ export default function AppLayout({ children }) {
         </nav>
 
         <div className="al-sidebar-footer">
-          <button className="al-nav-item">
-            <Icon name="settings" /><span>Configuración</span>
-          </button>
           <div className="al-user-row">
             <div className="al-avatar">{getInitials(user.name)}</div>
             <div className="al-user-text">

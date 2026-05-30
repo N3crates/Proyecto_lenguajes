@@ -21,30 +21,67 @@ import Grades from '../pages/Grades';
 const AppRouter = () => {
   return (
     <Routes>
-      {/* Rutas Públicas */}
-      <Route path="/login" element={<Login />} />
+      {/* Públicas */}
+      <Route path="/login"    element={<Login />} />
       <Route path="/register" element={<Register />} />
 
-      {/* Rutas Privadas (Protegidas) */}
+      {/* Solo autenticación */}
       <Route element={<ProtectedRoute />}>
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/students" element={<Students />} />
-        <Route path="/enrollments" element={<Enrollments />} />
-        <Route path="/grades" element={<Grades />} />
+        <Route path="/profile"   element={<Profile />} />
+      </Route>
+
+      {/* Administración */}
+      <Route element={<ProtectedRoute permission="manage_users" />}>
         <Route path="/users" element={<Users />} />
-        <Route path="/teachers" element={<Teachers />} />
-        <Route path="/subjects" element={<Subjects />} />
-        <Route path="/groups" element={<Groups />} />
-        <Route path="/groups/my-groups" element={<MyGroups />} />
-        <Route path="/profile" element={<Profile />} />
+      </Route>
+      <Route element={<ProtectedRoute permission="manage_roles" />}>
         <Route path="/roles" element={<Roles />} />
+      </Route>
+      <Route element={<ProtectedRoute permission="view_audit" />}>
         <Route path="/audit" element={<Audit />} />
       </Route>
 
-      {/* Si escriben una ruta que no existe, los mandamos al login */}
+      {/* Escolar */}
+      <Route element={<ProtectedRoute permission="manage_teachers" />}>
+        <Route path="/teachers" element={<Teachers />} />
+      </Route>
+      <Route element={<ProtectedRoute permission="manage_students" />}>
+        <Route path="/students" element={<Students />} />
+      </Route>
+
+      {/* Inscripciones: admin con manage_enrollments 
+      Si se hace una pagina de MyEnrrollments.jsx solo cambiar view_enrollments
+      a una ruta protegida propia con path /my-enrollments */}
+      <Route element={<ProtectedRoute permission={["manage_enrollments", "view_enrollments"]} />}>
+        <Route path="/enrollments" element={<Enrollments />} />
+      </Route>
+
+      {/* Académico */}
+      <Route element={<ProtectedRoute permission="manage_subjects" />}>
+        <Route path="/subjects" element={<Subjects />} />
+      </Route>
+      <Route element={<ProtectedRoute permission="manage_groups" />}>
+        <Route path="/groups" element={<Groups />} />
+      </Route>
+      <Route element={<ProtectedRoute permission={["manage_grades", "view_grades"]} />}>
+        <Route path="/grades" element={<Grades />} />
+      </Route>
+
+      {/* Teacher */}
+      <Route element={<ProtectedRoute permission="view_own_groups" />}>
+        <Route path="/groups/my-groups" element={<MyGroups />} />
+      </Route>
+
+      {/* Student */}
+      <Route element={<ProtectedRoute permission="view_own_grades" />}>
+        <Route path="/my-grades" element={<Grades />} />
+      </Route>
+
       <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 };
+
 
 export default AppRouter;
