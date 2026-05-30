@@ -9,8 +9,12 @@ const getGrades = async () => {
 const createGrade = async (gradeData, adminId) => {
     const errors = validation.validateGrade(gradeData)
     if (errors.length > 0) throw new Error(errors.join(", "))
+    
+    const existingGrade = await repository.findByEnrollmentId(gradeData.enrollmentId)
 
-    const finalGrade = (gradeData.partial1 + gradeData.partial2 + gradeData.partial3) / 3
+    if(existingGrade) throw new Error("Ya existe una calificación para esta inscripción")
+
+    const finalGrade = (Number(gradeData.partial1) + Number(gradeData.partial2) + Number(gradeData.partial3)) / 3
     gradeData.finalGrade = Number(finalGrade.toFixed(2))
     gradeData.status     = true
     gradeData.createdAt  = new Date()
@@ -34,7 +38,7 @@ const updateGrade = async (id, gradeData, adminId) => {
     const errors = validation.validateGrade(gradeData)
     if (errors.length > 0) throw new Error(errors.join(", "))
 
-    const finalGrade = (gradeData.partial1 + gradeData.partial2 + gradeData.partial3) / 3
+    const finalGrade = (Number(gradeData.partial1) + Number(gradeData.partial2) + Number(gradeData.partial3)) / 3
     gradeData.finalGrade = Number(finalGrade.toFixed(2))
     gradeData.updatedAt  = new Date()
 

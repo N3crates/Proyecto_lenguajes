@@ -75,88 +75,30 @@ export default function Enrollments() {
   // FILTER
   // =====================================
   const filtered = useMemo(() => {
-
-  const q =
-    search.toLowerCase();
-
-  let data = enrollments;
+  const q = search.toLowerCase()
+  let data = enrollments
 
   // STUDENT SOLO VE SUS INSCRIPCIONES
-
   if(user?.role === "student"){
-
-    data = data.filter(
-
-      enrollment =>
-
-        enrollment.studentId === user.id
-
-    );
-
+    data = data.filter(enrollment => enrollment.studentId === user.id)
   }
 
   // FILTRO STATUS
-
   if(statusFilter === "active"){
-
-    data = data.filter(
-      enrollment => enrollment.status
-    );
-
+    data = data.filter(enrollment => enrollment.status)
   }
 
   if(statusFilter === "inactive"){
-
-    data = data.filter(
-      enrollment => !enrollment.status
-    );
-
+    data = data.filter(enrollment => !enrollment.status)
   }
 
   return data.filter(enrollment => {
+    const studentName =students.find(s => s.id === enrollment.studentId)?.name?.toLowerCase() || ""
+    const subjectName = subjects.find(s => s.id === enrollment.subjectId)?.nombre?.toLowerCase() || ""
+    const groupName = groups.find(g => g.id === enrollment.groupId)?.nombre?.toLowerCase() || ""
 
-    const studentName =
-      students.find(
-        s => s.id === enrollment.studentId
-      )?.name?.toLowerCase() || "";
-
-    const subjectName =
-      subjects.find(
-        s => s.id === enrollment.subjectId
-      )?.nombre?.toLowerCase() || "";
-
-    const groupName =
-      groups.find(
-        g => g.id === enrollment.groupId
-      )?.nombre?.toLowerCase() || "";
-
-    return (
-
-      studentName.includes(q)
-
-      ||
-
-      subjectName.includes(q)
-
-      ||
-
-      groupName.includes(q)
-
-    );
-
-  });
-
-}, [
-
-  enrollments,
-  search,
-  statusFilter,
-  user,
-  students,
-  subjects,
-  groups
-
-]);
+    return (studentName.includes(q) || subjectName.includes(q) || groupName.includes(q))})
+    }, [enrollments, search, statusFilter, user, students, subjects, groups])
 
   // =====================================
   // HANDLE CHANGE
@@ -247,7 +189,7 @@ export default function Enrollments() {
               <form onSubmit={handleSubmit}>
                 <div className="module-form-grid">
                   <div className="module-form-group">
-                    <label className="modal-label"> Alumno 🧑‍🎓</label>
+                    <label className="modal-label"> Alumno </label>
                     <select className="pg-input" name="studentId" value={form.studentId} onChange={handleChange} required>
                       <option value="">Selecciona alumno</option>
                       
@@ -314,155 +256,66 @@ export default function Enrollments() {
           )
         }
         
-        {/* STATS */}
+        {user?.role === "admin" && (
+        <>
+          {/* STATS */}
+            <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: "16px", marginBottom: "20px"}}>
 
-<div
-  style={{
-    display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fit,minmax(220px,1fr))",
-    gap: "16px",
-    marginBottom: "20px"
-  }}
->
+              {/* TOTAL */}
+              <div className="db-widget g-indigo">
+                <div className="db-widget-top">
+                    <span className="db-widget-icon">📜</span>
+                  </div>
+                <p className="db-widget-value">{enrollments.length}</p>
+                <p className="db-widget-label">Total Inscripciones</p>
+                <p className="db-widget-sub">Registrados en el sistema</p>
+              </div>
 
-  {/* TOTAL */}
-
-  <div className="pg-card">
-
-    <h3
-      style={{
-        fontSize: 13,
-        color: "var(--text-2)"
-      }}
-    >
-
-      Total Inscripciones
-
-    </h3>
-
-    <h1
-      style={{
-        marginTop: 10
-      }}
-    >
-
-      {enrollments.length}
-
-    </h1>
-
-  </div>
+              {/* ACTIVAS */}
+              <div className="db-widget g-teal">
+                <div className="db-widget-top">
+                    <span className="db-widget-icon">✅</span>
+                  </div>
+                <p className="db-widget-value">{enrollments.filter(e => e.status).length}</p>
+                <p className="db-widget-label">Inscripciones Activas</p>
+                <p className="db-widget-sub">Actualmente activos</p>
+              </div>
 
 
-  {/* ACTIVAS */}
-
-  <div className="pg-card">
-
-    <h3
-      style={{
-        fontSize: 13,
-        color: "var(--text-2)"
-      }}
-    >
-
-      Inscripciones Activas
-
-    </h3>
-
-    <h1
-      style={{
-        marginTop: 10
-      }}
-    >
-
-      {
-        enrollments.filter(
-          e => e.status
-        ).length
-      }
-
-    </h1>
-
-  </div>
-
-
-  {/* BAJA */}
-
-  <div className="pg-card">
-
-    <h3
-      style={{
-        fontSize: 13,
-        color: "var(--text-2)"
-      }}
-    >
-
-      Inscripciones Baja
-
-    </h3>
-
-    <h1
-      style={{
-        marginTop: 10
-      }}
-    >
-
-      {
-        enrollments.filter(
-          e => !e.status
-        ).length
-      }
-
-    </h1>
-
-  </div>
-
-</div>
+              {/* BAJA */}
+              <div className="db-widget g-rose">
+                <div className="db-widget-top">
+                    <span className="db-widget-icon">❌</span>
+                  </div>
+                  <p className="db-widget-value">{enrollments.filter(e => !e.status).length}</p>
+                  <p className="db-widget-label">Inscripciones Inactivas</p>
+                  <p className="db-widget-sub">Inactivos en el sistema</p>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* SEARCH */}
         <div className="pg-card module-toolbar">
           <div className="um-search-wrap">
             <input className="um-search-input" placeholder="🔍 Buscar inscripción..." value={search} onChange={e => setSearch(e.target.value)}/>
-            <select
-  className="pg-input"
-  value={statusFilter}
-  onChange={(e) =>
-    setStatusFilter(
-      e.target.value
-    )
-  }
-  style={{
-    maxWidth: "180px"
-  }}
->
-
-  <option value="all">
-    Todos
-  </option>
-
-  <option value="active">
-    Activos
-  </option>
-
-  <option value="inactive">
-    Baja
-  </option>
-
-</select>
+            <select className="pg-input" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+              <option value="all">
+                Todos
+              </option>
+              <option value="active">
+                Activos
+              </option>
+              <option value="inactive">
+                Baja
+              </option>
+            </select>
           </div>
-
-          {search && (
-              <button className="btn-ghost" onClick={() => setSearch("")}>Limpiar</button>
-            )
-          }
+          {search && (<button className="btn-ghost" onClick={() => setSearch("")}>Limpiar</button>)}
         </div>
 
         {/* ERROR */}
-        {
-          error && (
-            <div className="modal-error">{error}</div>
-          )
-        }
+        {error && (<div className="modal-error">{error}</div>)}
 
         {/* TABLE */}
         <div className="pg-card module-table-card">

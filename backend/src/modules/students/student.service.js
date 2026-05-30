@@ -1,6 +1,8 @@
 const repository = require("./student.repository")
 const validation = require("./student.validation")
 const { createAuditLog } = require('../../utils/audit.service')
+const enrollmentRepository = require("../enrollments/enrollment.repository")
+const gradeRepository = require("../grades/grade.repository")
 
 const getStudents = async () => {
     return await repository.getAllStudents()
@@ -28,17 +30,55 @@ const updateStudent = async (id, studentData, adminId) => {
 }
 
 const deleteStudent = async (id, adminId) => {
-    const student = await repository.getStudentsById(id)
-    if (!student) throw new Error("Alumno no encontrado")
 
-    const result = await repository.deleteStudent(id)
+    const student = await repository.getStudentsById(id);
 
-    await createAuditLog(adminId, 'DELETE_STUDENT', {
-        studentId: id,
-        name:      student.name || `${student.nombre} ${student.apaterno}`
+    if (!student) {
+        throw new Error("Alumno no encontrado");
+    }
+
+    // Obtener inscripciones del alumno
+    const enrollments =
+        await enrollmentRepository.getEnrollmentByStudentId(id);
+
+    // Dar de baja todas las inscripciones
+    await Promise.all(
+    enrollments.map(async (enrollment) => {
+
+        await gradeRepository
+            .deleteGradesByEnrollmentId(
+                enrollment.id
+            );
+
+        await enrollmentRepository
+            .updateEnrollment(
+                enrollment.id,
+                {
+                    status: false,
+                    updatedAt: new Date()
+                }
+            );
+
     })
+);
 
-    return result
-}
+    // Dar de baja al alumno
+    const result =
+        await repository.deleteStudent(id);
+
+    // Auditoría
+    await createAuditLog(
+        adminId,
+        'DELETE_STUDENT',
+        {
+            studentId: id,
+            name:
+                student.name ||
+                `${student.nombre} ${student.apaterno || ""}`
+        }
+    );
+
+    return result;
+};
 
 module.exports = { getStudents, getStudentsById, updateStudent, deleteStudent }

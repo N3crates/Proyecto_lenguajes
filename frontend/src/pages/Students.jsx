@@ -139,8 +139,7 @@ export default function Students() {
             <div className="db-widget-top">
               <span className="db-widget-icon">❌</span>
             </div>
-            <p className="db-widget-value">{students.filter(s => !s.status).length}
-            </p>
+            <p className="db-widget-value">{students.filter(s => !s.status).length}</p>
             <p className="db-widget-label">Alumnos de Baja</p>
             <p className="db-widget-sub">Inactivos en el sistema</p>
           </div>
@@ -148,151 +147,100 @@ export default function Students() {
         
         {/* EDIT FORM */}
         {showForm && (
-
-            <div
-            className="pg-card"
-            style={{
-                padding: "24px 28px",
-                marginBottom: "20px"
-            }}
-            >
-
-            <h5
-                style={{
-                fontFamily:
-                    "'Sora', sans-serif",
-
-                fontSize: 15,
-
-                fontWeight: 600,
-
-                marginBottom: 20
-                }}
-            >
-
-                Editar Alumno
-
-            </h5>
-
-
-            <form
-                onSubmit={handleSubmit}
-            >
-
+          <div className="pg-card">
+            <h5>Editar Alumno</h5>
+            <form onSubmit={handleSubmit}>
                 <div className="module-form-grid">
 
-                {/* NOMBRE */}
+                  {/* NOMBRE */}
+                  <div className="module-form-group">
+                    <label className="modal-label">Nombre</label>
+                    <input className="pg-input" name="name" value={form.name} onChange={handleChange}/>
+                  </div>
 
-                <div className="module-form-group">
+                  {/* EMAIL */}
+                  <div className="module-form-group">
+                    <label className="modal-label">Email</label>
+                    <input className="pg-input" name="email" value={form.email} onChange={handleChange}/>
+                  </div>
 
-                    <label className="modal-label">
-                    Nombre
-                    </label>
-
-                    <input
-                    className="pg-input"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    />
-
+                  {/* MATRICULA */}
+                  <div className="module-form-group">
+                    <label className="modal-label">Matrícula</label>
+                    <input className="pg-input" name="studentNumber" value={form.studentNumber} onChange={handleChange}/>
+                  </div>
                 </div>
 
+<div className="module-form-grid">
 
-                {/* EMAIL */}
+  {/* NOMBRE */}
+  <div className="module-form-group">
+    <label className="modal-label">Nombre</label>
+    <input
+      className="pg-input"
+      name="name"
+      value={form.name}
+      onChange={handleChange}
+    />
+  </div>
 
-                <div className="module-form-group">
+  {/* EMAIL */}
+  <div className="module-form-group">
+    <label className="modal-label">Email</label>
+    <input
+      className="pg-input"
+      name="email"
+      value={form.email}
+      onChange={handleChange}
+    />
+  </div>
 
-                    <label className="modal-label">
-                    Email
-                    </label>
+  {/* MATRICULA */}
+  <div className="module-form-group">
+    <label className="modal-label">Matrícula</label>
+    <input
+      className="pg-input"
+      name="studentNumber"
+      value={form.studentNumber}
+      onChange={handleChange}
+    />
+  </div>
 
-                    <input
-                    className="pg-input"
-                    name="email"
-                    value={form.email}
-                    onChange={handleChange}
-                    />
+  {/* CARRERA */}
+  <div className="module-form-group">
+    <label className="modal-label">Carrera</label>
+    <input
+      className="pg-input"
+      name="carrera"
+      value={form.carrera}
+      onChange={handleChange}
+    />
+  </div>
 
-                </div>
+  {/* SEMESTRE */}
+  <div className="module-form-group">
+    <label className="modal-label">Semestre</label>
+    <input
+      className="pg-input"
+      name="semestre"
+      type="number"
+      min="1"
+      value={form.semestre}
+      onChange={handleChange}
+    />
+  </div>
 
-
-                {/* MATRICULA */}
-
-                <div className="module-form-group">
-
-                    <label className="modal-label">
-                    Matrícula
-                    </label>
-
-                    <input
-                    className="pg-input"
-                    name="studentNumber"
-                    value={form.studentNumber}
-                    onChange={handleChange}
-                    />
-
-                </div>
-
-                {/* CARRERA */}
-                <div className="module-form-group">
-                    <label className="modal-label">Carrera</label>
-                    <input className="pg-input" name="carrera" value={form.carrera} onChange={handleChange} />
-                </div>
-
-                {/* SEMESTRE */}
-                <div className="module-form-group">
-                    <label className="modal-label">Semestre</label>
-                    <input className="pg-input" name="semestre" type="number" min="1" value={form.semestre} onChange={handleChange} />
-                </div>
-
-                </div>
-
-
+</div>
                 {/* BOTONES */}
-
-                <div
-                style={{
-                    display: "flex",
-                    gap: "12px",
-                    marginTop: "20px"
-                }}
-                >
-
-                <button
-                    type="submit"
-                    className="btn-primary"
-                >
-
-                    Guardar Cambios
-
-                </button>
-
-
-                <button
-                    type="button"
-                    className="btn-ghost"
-                    onClick={() => {
-
-                    setShowForm(false);
-
-                    setEditingStudent(null);
-
-                    }}
-                >
-
+                <div>
+                  <button type="submit" className="btn-primary">Guardar Cambios</button>
+                  <button type="button" className="btn-ghost" onClick={() => {setShowForm(false); setEditingStudent(null);}}>
                     Cancelar
-
-                </button>
-
+                  </button>
                 </div>
-
             </form>
-
-            </div>
-
-        )
-        }
+          </div>
+        )}
 
         {/* SEARCH */}
         <div className="pg-card module-toolbar">

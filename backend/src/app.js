@@ -9,6 +9,7 @@ const enrollmentRoutes = require("./modules/enrollments/enrollment.routes")
 const teacherRoutes = require("./modules/teachers/teacher.routes")
 const subjectRoutes = require("./modules/subjects/subjects.routes")
 const groupRoutes = require("./modules/groups/groups.routes")
+const gradeRoutes = require("./modules/grades/grade.routes")
 const userRoutes = require('./modules/users/user.routes');
 const roleRoutes = require('./modules/roles/role.routes');
 const permissionRoutes = require('./modules/permissions/permission.routes');
@@ -32,6 +33,7 @@ app.use("/api/enrollments", enrollmentRoutes)
 app.use("/api/teachers", teacherRoutes)
 app.use("/api/subjects", subjectRoutes)
 app.use("/api/groups", groupRoutes)
+app.use("/api/grades", gradeRoutes)
 app.use('/api/auth', authLimiter, authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/roles', roleRoutes);

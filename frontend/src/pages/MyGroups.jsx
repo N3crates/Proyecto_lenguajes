@@ -47,7 +47,7 @@ export default function MyGroups() {
 
   // Helper para obtener el nombre de la materia por id
   const getSubjectName = (id) => {
-    const s = subjects.find(s => s.id === id);
+    const s = subjects?.find(s => s.id === id);
     return s ? s.nombre : "—";
   };
 
