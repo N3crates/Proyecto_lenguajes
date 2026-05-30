@@ -80,7 +80,8 @@ export default function Enrollments() {
 
   // STUDENT SOLO VE SUS INSCRIPCIONES
   if(user?.role === "student"){
-    data = data.filter(enrollment => enrollment.studentId === user.id)
+    const studentDoc = students.find(s => s.userId === user.id)
+    data = data.filter(enrollment => enrollment.studentId === studentDoc?.id)
   }
 
   // FILTRO STATUS
