@@ -8,6 +8,9 @@ export default function Grades() {
   const [subjects, setSubjects] = useState([])
   const [students, setStudents] = useState([])
   const [teachers, setTeachers] = useState([])
+  useEffect(() => {
+  console.log("Teachers state:", teachers);
+}, [teachers]);
   const [groups, setGroups] = useState([])
   const [enrollments, setEnrollments] = useState([])
   const [loading, setLoading] = useState(true)
@@ -73,14 +76,16 @@ export default function Grades() {
   }
 
   const fetchTeachers = async () => {
-    try {
-      const res = await api.get("/teachers");
-      setTeachers(res.data.data)
-    } catch(err){
-      console.log(err)
-    }
-  }
+  try {
+    const res = await api.get("/teachers");
 
+    console.log("TEACHERS API:", res.data);
+
+    setTeachers(res.data.data);
+  } catch(err){
+    console.log("ERROR TEACHERS:", err);
+  }
+}
   useEffect(() => {
     const load = async () => {
       await Promise.all([
@@ -180,7 +185,7 @@ export default function Grades() {
       )
     }
   return []
-}, [enrollments, groups, user])
+}, [enrollments, groups, teachers, user])
 
   // =====================================
   // HANDLE CHANGE
