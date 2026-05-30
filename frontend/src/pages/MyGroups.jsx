@@ -40,7 +40,7 @@ export default function MyGroups() {
   useEffect(() => { fetchAll(); }, []);
 
   const getSubjectName = (id) => {
-    const s = subjects.find(s => s.id === id);
+    const s = subjects?.find(s => s.id === id);
     return s ? s.nombre : "—";
   };
 

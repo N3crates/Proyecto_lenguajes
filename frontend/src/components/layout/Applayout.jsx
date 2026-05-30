@@ -47,12 +47,12 @@ const navByRole = {
     { label: "Inicio",         icon: "home",  path: "/dashboard",       section: null },
     { label: "Mi Perfil",      icon: "user",  path: "/profile",         section: null },
     { label: "Mis Grupos",     icon: "book",  path: "/groups/my-groups",section: "Académico" },
-    { label: "Calificaciones", icon: "star",  path: "/grades/capture",  section: "Académico" },
+    { label: "Calificaciones", icon: "star",  path: "/grades",  section: "Académico" },
   ],
   student: [
     { label: "Inicio",             icon: "home", path: "/dashboard", section: null },
     { label: "Mi Perfil",          icon: "user", path: "/profile",   section: null },
-    { label: "Mis Calificaciones", icon: "star", path: "/my-grades", section: "Escolar" },
+    { label: "Mis Calificaciones", icon: "star", path: "/grades", section: "Escolar" },
     { label: "Mis Inscripciones",  icon: "book", path: "/enrollments",section: null },
   ],
 };

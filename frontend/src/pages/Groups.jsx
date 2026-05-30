@@ -48,7 +48,7 @@ export default function Groups() {
   };
 
   const getSubjectName = (id) => {
-    const s = subjects.find(s => s.id === id);
+    const s = subjects?.find(s => s.id === id);
     return s ? s.nombre : "—";
   };
 
