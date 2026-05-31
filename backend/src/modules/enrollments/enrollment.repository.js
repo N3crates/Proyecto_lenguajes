@@ -16,15 +16,8 @@ const createEnrollment = async(enrollmentData) => {
 
 const getEnrollmentById = async(id) => {
     const doc = await collection.doc(id).get()
-
-    if(!doc.exists){
-        return null
-    }
-    const enrollment = {
-        id: doc.id,
-        ...doc.data()
-    }
-    return enrollment
+    if(!doc.exists) return null
+    return { id: doc.id, ...doc.data() }
 }
 
 const getEnrollmentByStudentId = async(studentId) => {
@@ -32,21 +25,20 @@ const getEnrollmentByStudentId = async(studentId) => {
         .where("studentId", "==", studentId)
         .where("status", "==", true)
         .get()
-    
-    return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }))
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+}
+
+const getEnrollmentsByGroupId = async(groupId) => {
+    const snapshot = await collection
+        .where("groupId", "==", groupId)
+        .get()
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
 }
 
 const deleteEnrollment = async (id) => {
     const doc = await collection.doc(id).get()
-    if(!doc.exists){
-        return null
-    }
-
+    if(!doc.exists) return null
     const enrollment = doc.data()
-
     await collection.doc(id).update({
         status: !enrollment.status,
         updatedAt: new Date()
@@ -61,7 +53,6 @@ const findDuplicateEnrollment = async(studentId, subject, group) => {
         .where("group", "==", group)
         .where("status", "==", true)
         .get()
-    
     return !snapshot.empty
 }
 
@@ -75,6 +66,7 @@ module.exports = {
     createEnrollment,
     getEnrollmentById,
     getEnrollmentByStudentId,
+    getEnrollmentsByGroupId,
     deleteEnrollment,
     findDuplicateEnrollment,
     updateEnrollment

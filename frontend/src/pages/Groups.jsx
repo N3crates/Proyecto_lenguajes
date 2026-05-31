@@ -1,3 +1,4 @@
+// Importaciones necesarias para el componente
 import { useState, useEffect, useMemo } from "react";
 import AppLayout, { Icon } from "../components/layout/Applayout";
 import api from "../api/axios";
@@ -6,16 +7,70 @@ import "../styles/Dashboard.css";
 
 const ITEMS_PER_PAGE = 8;
 
+// Modal de alumnos inscritos en un grupo
+function AlumnosModal({ group, enrollments, loading, getStudentName, getTeacherName, getSubjectName, onClose }) {
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-box wide" onClick={e => e.stopPropagation()}>
+        <div className="modal-header">
+          <span className="modal-title">Alumnos inscritos — {group.nombre}</span>
+          <button className="modal-close" onClick={onClose}>✕</button>
+        </div>
+
+        <div style={{ marginBottom: 12 }}>
+          <p style={{ fontSize: 12.5, color: "var(--text-2)", margin: 0 }}>
+            Docente: <strong>{getTeacherName(group.teacherId)}</strong> · Materia: <strong>{getSubjectName(group.subjectId)}</strong> · Ciclo: <strong>{group.ciclo}</strong>
+          </p>
+        </div>
+
+        {loading ? (
+          <p className="module-loading">Cargando alumnos...</p>
+        ) : enrollments.length === 0 ? (
+          <p className="module-empty">No hay alumnos inscritos en este grupo</p>
+        ) : (
+          <table className="module-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Alumno</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {enrollments.map((enrollment, index) => (
+                <tr key={enrollment.id}>
+                  <td>{index + 1}</td>
+                  <td>{getStudentName(enrollment.studentId)}</td>
+                  <td>
+                    <span className={enrollment.status ? "badge-active" : "badge-inactive"}>
+                      {enrollment.status ? "Activo" : "Baja"}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+
+        <div className="modal-actions">
+          <button className="btn-primary" onClick={onClose}>Cerrar</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Groups() {
   // Estados principales
   const [groups, setGroups] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [statusFilter, setStatusFilter] = useState("all"); // filtro por status
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showForm, setShowForm] = useState(false);
   const [editingGroup, setEditingGroup] = useState(null);
   const [form, setForm] = useState({
@@ -23,18 +78,25 @@ export default function Groups() {
   });
   const [formErrors, setFormErrors] = useState({});
 
-  // Funcion para obtener grupos, docentes y materias del backend
+  // Estados para el modal de alumnos inscritos
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [enrollments, setEnrollments] = useState([]);
+  const [loadingEnrollments, setLoadingEnrollments] = useState(false);
+
+  // Funcion para obtener grupos, docentes, materias y alumnos del backend
   const fetchAll = async () => {
     try {
       setLoading(true);
-      const [groupsRes, teachersRes, subjectsRes] = await Promise.all([
+      const [groupsRes, teachersRes, subjectsRes, studentsRes] = await Promise.all([
         api.get("/groups"),
         api.get("/teachers"),
         api.get("/subjects"),
+        api.get("/students"),
       ]);
       setGroups(groupsRes.data.data);
       setTeachers(teachersRes.data.data);
       setSubjects(subjectsRes.data.data);
+      setStudents(studentsRes.data.data);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -43,12 +105,12 @@ export default function Groups() {
   };
 
   // Se ejecuta al montar el componente
-  useEffect(() => { 
+  useEffect(() => {
     const load = async () => { await fetchAll(); };
     load();
   }, []);
 
-  // Helpers para obtener nombre del docente y materia por id
+  // Helpers para obtener nombre del docente, materia y alumno por id
   const getTeacherName = (id) => {
     const t = teachers.find(t => t.id === id);
     return t ? `${t.nombre} ${t.apaterno}` : "—";
@@ -57,6 +119,13 @@ export default function Groups() {
   const getSubjectName = (id) => {
     const s = subjects?.find(s => s.id === id);
     return s ? s.nombre : "—";
+  };
+
+  // El repository de students ya arma el campo name
+  const getStudentName = (id) => {
+    const s = students.find(s => s.id === id);
+    if (!s) return id;
+    return s.name || id;
   };
 
   // Filtro por busqueda de texto y status
@@ -79,6 +148,20 @@ export default function Groups() {
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const handleSearch = (e) => { setSearch(e.target.value); setPage(1); };
+
+  // Abrir modal de alumnos inscritos
+  const handleVerAlumnos = async (group) => {
+    try {
+      setSelectedGroup(group);
+      setLoadingEnrollments(true);
+      const res = await api.get(`/enrollments/group/${group.id}`);
+      setEnrollments(res.data.data);
+    } catch (err) {
+      setEnrollments([]);
+    } finally {
+      setLoadingEnrollments(false);
+    }
+  };
 
   // Validacion del formulario
   const validate = (data) => {
@@ -135,6 +218,7 @@ export default function Groups() {
     if (!confirm("¿Dar de baja este grupo?")) return;
     try {
       await api.delete(`/groups/${id}`);
+      if (selectedGroup?.id === id) { setSelectedGroup(null); setEnrollments([]); }
       fetchAll();
     } catch (err) {
       alert(err.response?.data?.message || "Error al dar de baja");
@@ -153,6 +237,19 @@ export default function Groups() {
     <AppLayout>
       <div className="pg-wrap">
 
+        {/* Modal de alumnos inscritos */}
+        {selectedGroup && (
+          <AlumnosModal
+            group={selectedGroup}
+            enrollments={enrollments}
+            loading={loadingEnrollments}
+            getStudentName={getStudentName}
+            getTeacherName={getTeacherName}
+            getSubjectName={getSubjectName}
+            onClose={() => { setSelectedGroup(null); setEnrollments([]); }}
+          />
+        )}
+
         {/* Encabezado de la pagina */}
         <div className="pg-head">
           <div>
@@ -167,25 +264,19 @@ export default function Groups() {
         {/* Tarjetas de estadisticas */}
         <div className="db-widgets">
           <div className="db-widget g-indigo">
-            <div className="db-widget-top">
-              <span className="db-widget-icon">🏫</span>
-            </div>
+            <div className="db-widget-top"><span className="db-widget-icon">🏫</span></div>
             <p className="db-widget-value">{groups.length}</p>
             <p className="db-widget-label">Total Grupos</p>
             <p className="db-widget-sub">Registrados en el sistema</p>
           </div>
           <div className="db-widget g-teal">
-            <div className="db-widget-top">
-              <span className="db-widget-icon">✅</span>
-            </div>
+            <div className="db-widget-top"><span className="db-widget-icon">✅</span></div>
             <p className="db-widget-value">{groups.filter(g => g.status).length}</p>
             <p className="db-widget-label">Grupos Activos</p>
             <p className="db-widget-sub">Activos este ciclo</p>
           </div>
           <div className="db-widget g-rose">
-            <div className="db-widget-top">
-              <span className="db-widget-icon">❌</span>
-            </div>
+            <div className="db-widget-top"><span className="db-widget-icon">❌</span></div>
             <p className="db-widget-value">{groups.filter(g => !g.status).length}</p>
             <p className="db-widget-label">Grupos de Baja</p>
             <p className="db-widget-sub">Inactivos en el sistema</p>
@@ -256,7 +347,6 @@ export default function Groups() {
               onChange={handleSearch}
             />
           </div>
-          {/* Botones de filtro por status */}
           <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
             <span style={{ fontSize: 13, color: "var(--text-2)" }}>Status:</span>
             {[
@@ -298,15 +388,16 @@ export default function Groups() {
                 <th>Docente</th>
                 <th>Materia</th>
                 <th>Ciclo</th>
+                <th>Alumnos</th>
                 <th>Status</th>
                 <th>Acciones</th>
               </tr>
             </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan="6" className="module-loading">Cargando...</td></tr>
+                <tr><td colSpan="7" className="module-loading">Cargando...</td></tr>
               ) : paginated.length === 0 ? (
-                <tr><td colSpan="6" className="module-empty">No se encontraron grupos</td></tr>
+                <tr><td colSpan="7" className="module-empty">No se encontraron grupos</td></tr>
               ) : (
                 paginated.map((group) => (
                   <tr key={group.id}>
@@ -314,13 +405,22 @@ export default function Groups() {
                     <td>{getTeacherName(group.teacherId)}</td>
                     <td>{getSubjectName(group.subjectId)}</td>
                     <td>{group.ciclo}</td>
+
                     <td>
-                      <span className={group.status ? "badge-active" : "badge-inactive"}>
-                        {group.status ? "Activo" : "Baja"}
-                      </span>
+                    <strong>{group.studentCount || 0}</strong>
+                    </td>
+
+                    <td>
+                    <span className={group.status ? "badge-active" : "badge-inactive"}>
+                    {group.status ? "Activo" : "Baja"}
+                    </span>
                     </td>
                     <td>
                       <div className="module-actions">
+                        {/* Boton para ver alumnos inscritos */}
+                        <button className="module-btn-edit" onClick={() => handleVerAlumnos(group)}>
+                          Alumnos
+                        </button>
                         <button className="module-btn-edit" onClick={() => handleEdit(group)}>Editar</button>
                         <button className="module-btn-delete" onClick={() => handleDelete(group.id)}>Baja</button>
                       </div>

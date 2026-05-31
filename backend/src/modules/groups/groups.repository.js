@@ -1,15 +1,37 @@
-// Repositorio de grupos — acceso directo a Firestore
-
 const db = require("../../config/firebase")
+
 const collection = db.collection("groups")
+const enrollmentsCollection = db.collection("enrollments")
 
 // Obtener todos los grupos de la coleccion
 const getAllGroups = async () => {
-    const snapshot = await collection.get()
-    return snapshot.docs.map(doc => ({
+    const [groupsSnapshot, enrollmentsSnapshot] = await Promise.all([
+        collection.get(),
+        enrollmentsCollection.get()
+    ])
+
+    const enrollments = enrollmentsSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
     }))
+
+    return groupsSnapshot.docs.map(doc => {
+        const group = {
+            id: doc.id,
+            ...doc.data()
+        }
+
+        const studentCount = enrollments.filter(
+            enrollment =>
+                enrollment.groupId === group.id &&
+                enrollment.status === true
+        ).length
+
+        return {
+            ...group,
+            studentCount
+        }
+    })
 }
 
 // Crear un nuevo documento en la coleccion groups
@@ -58,6 +80,7 @@ const deleteGroup = async (id) => {
         status: false,
         deletedAt: new Date()
     })
+
     return { id }
 }
 
