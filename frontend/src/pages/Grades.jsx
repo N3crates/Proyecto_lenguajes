@@ -616,7 +616,9 @@ export default function Grades() {
         </div>
         
         {!loading && filtered.length > 0 && (
-            <p> Mostrando {filtered.length} de {grades.length} calificaciones</p>
+            <p style={{fontSize: 12.5, color: "var(--text-2)", textAlign: "center"}}> 
+              Mostrando {filtered.length} de {grades.length} calificaciones
+            </p>
           )
         }
       </div>
