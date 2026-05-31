@@ -123,19 +123,19 @@ const ChangePasswordModal = ({ onClose }) => {
 };
 
 // ── Modal: Editar nombre ──────────────────────────────────────────────────────
-const EditNameModal = ({ currentName, uid, onClose, onSaved }) => {
-  const [name, setName]       = useState(currentName || "");
-  const [loading, setLoading] = useState(false);
-  const [error, setError]     = useState(null);
+  const EditNameModal = ({ currentName, onClose, onSaved }) => {
+    const [name, setName]       = useState(currentName || "");
+    const [loading, setLoading] = useState(false);
+    const [error, setError]     = useState(null);
 
-  const handleSubmit = async () => {
+    const handleSubmit = async () => {
     setError(null);
     if (!name.trim()) return setError("El nombre no puede estar vacío.");
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const res   = await fetch(`http://localhost:3000/api/users/${uid}`, {
-        method: "PUT",
+      const res   = await fetch("http://localhost:3000/api/auth/update-profile", {
+        method: "PATCH",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
         body: JSON.stringify({ name: name.trim() }),
       });

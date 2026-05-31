@@ -29,21 +29,30 @@ const formatDate = (dateVal) => {
 const buildWidgets = (stats, role) => {
   if (!stats) return [];
   if (role === "admin") return [
-    { label: "Usuarios Totales", value: stats.totalUsers,              sub: "Registrados en el sistema",  grad: "g-indigo", icon: "users"    },
-    { label: "Docentes",         value: stats.totalTeachers,           sub: "Activos este ciclo",          grad: "g-violet", icon: "user"     },
-    { label: "Alumnos",          value: stats.totalStudents,           sub: "Activos este ciclo",          grad: "g-teal",   icon: "book"     },
-    { label: "Grupos",           value: stats.totalGroups,             sub: "Grupos registrados",          grad: "g-amber",  icon: "calendar" },
-    { label: "Roles",            value: stats.totalRoles,              sub: "Perfiles de acceso",          grad: "g-slate",  icon: "shield"   },
-    { label: "Promedio General", value: stats.generalAverage || "—",   sub: "Calificación escuela",        grad: "g-rose",   icon: "star"     },
+    { label: "Usuarios Totales", value: stats.totalUsers,            sub: "Registrados en el sistema", grad: "g-indigo", icon: "users"    },
+    { label: "Docentes",         value: stats.totalTeachers,         sub: "Activos este ciclo",         grad: "g-violet", icon: "user"     },
+    { label: "Alumnos",          value: stats.totalStudents,         sub: "Activos este ciclo",         grad: "g-teal",   icon: "book"     },
+    { label: "Grupos",           value: stats.totalGroups,           sub: "Grupos registrados",         grad: "g-amber",  icon: "calendar" },
+    { label: "Roles",            value: stats.totalRoles,            sub: "Perfiles de acceso",         grad: "g-slate",  icon: "shield"   },
+    { label: "Promedio General", value: stats.generalAverage || "—", sub: "Calificación escuela",       grad: "g-rose",   icon: "star"     },
   ];
   if (role === "teacher") return [
-    { label: "Grupos Activos",   value: stats.totalGroups,             sub: "Este ciclo",                  grad: "g-indigo", icon: "book"     },
-    { label: "Alumnos",          value: stats.totalStudents,           sub: "Total del plantel",            grad: "g-teal",   icon: "users"    },
-    { label: "Promedio Escuela", value: stats.generalAverage || "—",   sub: "Promedio global",              grad: "g-violet", icon: "star"     },
+    { label: "Mis Grupos Activos", value: stats.totalGroups,           sub: "Asignados a ti este ciclo",  grad: "g-indigo", icon: "book"  },
+    { label: "Mis Alumnos",        value: stats.totalStudents,         sub: "En tus grupos",              grad: "g-teal",   icon: "users" },
+    { label: "Promedio Mis Grupos",value: stats.generalAverage || "—", sub: "Promedio de tus alumnos",    grad: "g-violet", icon: "star"  },
   ];
+  // student
+  if (role === "student") return [
+    { label: "Mi Promedio",        value: stats.generalAverage || "—", sub: "Promedio de tus materias",   grad: "g-indigo", icon: "star"     },
+    { label: "Mis Inscripciones",  value: stats.totalEnrollments || 0, sub: "Materias activas este ciclo",grad: "g-teal",   icon: "calendar" },
+    { label: "Mis Grupos",         value: stats.totalGroups || 0,       sub: "Grupos activos este ciclo",   grad: "g-violet", icon: "book"     },
+  ];
+   // ── Roles custom — stats globales ────────────────────────────────────────
   return [
-    { label: "Promedio General", value: stats.generalAverage || "—",   sub: "Promedio del plantel",        grad: "g-indigo", icon: "star"     },
-    { label: "Grupos Activos",   value: stats.totalGroups,             sub: "Este ciclo",                  grad: "g-teal",   icon: "book"     },
+    { label: "Usuarios Totales",  value: stats.totalUsers   || "—", sub: "Registrados en el sistema", grad: "g-indigo", icon: "users"    },
+    { label: "Alumnos",           value: stats.totalStudents|| "—", sub: "Activos este ciclo",         grad: "g-teal",   icon: "book"     },
+    { label: "Grupos",            value: stats.totalGroups  || "—", sub: "Grupos registrados",         grad: "g-amber",  icon: "calendar" },
+    { label: "Promedio General",  value: stats.generalAverage|| "—",sub: "Calificación escuela",       grad: "g-rose",   icon: "star"     },
   ];
 };
 
@@ -114,7 +123,10 @@ export default function Dashboard() {
   }, []);
 
   const widgets = buildWidgets(stats, user.role);
-  const quick   = quickByRole[user.role] || [];
+  // En el componente — usa perfil como fallback para roles custom
+  const quick = quickByRole[user.role] || [
+    { label: "Perfil", icon: "user", path: "/profile" },
+  ];
 
   return (
     <AppLayout>

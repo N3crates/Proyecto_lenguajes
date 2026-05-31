@@ -172,7 +172,14 @@ export default function AppLayout({ children }) {
             <div className="al-avatar">{getInitials(user.name)}</div>
             <div className="al-user-text">
               <span className="al-user-name">{user.name}</span>
-              <span className={`al-role-tag ${roleColor[user.role]}`}>
+              <span
+                className={`al-role-tag ${roleColor[user.role] || ""}`}
+                style={
+                  !roleColor[user.role]
+                    ? { background: "#584578", color: "#e9d5ff" }
+                    : undefined
+                }
+              >
                 {roleLabel[user.role] || user.role}
               </span>
             </div>

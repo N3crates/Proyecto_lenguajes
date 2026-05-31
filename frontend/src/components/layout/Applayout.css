@@ -30,6 +30,11 @@
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+.al-role-tag.role-custom { 
+  background: rgba(168,139,250,0.35) !important; 
+  color: #e9d5ff !important; 
+}
+
 .al-root {
   display: flex;
   height: 100vh;
@@ -148,6 +153,7 @@
 .role-indigo { background: rgba(79,110,247,0.22); color: #8ba3ff; }
 .role-red    { background: rgba(248,113,113,0.18); color: #fca5a5; }
 .role-teal   { background: rgba(45,212,191,0.18);  color: #5eead4; }
+/*.role-custom { background: rgba(168,139,250,0.30); color: #e9d5ff; }*/
 .al-logout-icon {
   background: none; border: none; cursor: pointer; color: var(--sb-muted);
   display: flex; align-items: center; padding: 4px;

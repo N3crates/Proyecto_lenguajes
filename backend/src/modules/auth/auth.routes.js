@@ -13,5 +13,6 @@ router.post('/refresh', authController.refresh);
 //Rutas privadas -> Requieren Token
 router.get('/me', authMiddleware, authController.getProfile);
 router.patch('/change-password', authMiddleware, authController.changePassword);
+router.patch('/update-profile', authMiddleware, authController.updateProfile);
 
 module.exports = router;

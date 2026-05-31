@@ -139,7 +139,7 @@ export default function Grades() {
   const student = (studentObj?.name || "").toLowerCase()
   const subject = (subjectObj?.name || subjectObj?.nombre || "").toLowerCase()
   return (student.toLowerCase().includes(q) || subject.toLowerCase().includes(q))})}, 
-    [grades, enrollments, students, teachers, groups, search, user])
+    [grades, enrollments, students, teachers, groups, search, user, showInactive, subjects])
   
   const studentStats = useMemo(() => {
     if(user?.role !== "student") {return null}

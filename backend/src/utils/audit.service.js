@@ -1,18 +1,21 @@
 const db = require('../config/firebase');
 
-// Función para crear un log de auditoría
 const createAuditLog = async (userId, action, details = {}) => {
   try {
-    const auditRef = db.collection('audit_logs');
-    
-    const newLog = {
-      userId: userId || 'Sistema', // Quién hizo la acción
-      action: action,              // Ej: 'CREATE_ROLE', 'UPDATE_USER'
-      details: details,            // Qué cambió (datos extra)
-      timestamp: new Date()        // Cuándo lo hizo
-    };
+    // Busca el nombre del usuario para mostrarlo en actividad reciente
+    let userName = 'Sistema';
+    if (userId && userId !== 'Sistema') {
+      const userDoc = await db.collection('users').doc(userId).get();
+      if (userDoc.exists) userName = userDoc.data().name || 'Sistema';
+    }
 
-    await auditRef.add(newLog);
+    await db.collection('audit_logs').add({
+      userId:    userId || 'Sistema',
+      user:      userName,
+      action:    action,
+      details:   details,
+      timestamp: new Date()
+    });
 
   } catch (error) {
     console.error('Error guardando log de auditoría:', error);

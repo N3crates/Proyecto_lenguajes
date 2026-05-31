@@ -1,5 +1,6 @@
 const authService = require('./auth.service');
 const db = require('../../config/firebase');
+const { createAuditLog } = require('../../utils/audit.service');
 
 
 const register = async(req, res) => {
@@ -131,11 +132,34 @@ const refresh = async (req, res) => {
   }
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { name } = req.body;
+
+    if (!name?.trim()) {
+      return res.status(400).json({ success: false, message: 'El nombre no puede estar vacío' });
+    }
+
+    await db.collection('users').doc(userId).update({
+      name: name.trim(),
+      updatedAt: new Date()
+    });
+
+    await createAuditLog(userId, 'UPDATE_PROFILE', { name: name.trim() })
+
+    res.status(200).json({ success: true, message: 'Perfil actualizado correctamente' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 module.exports = {
   register,
   login,
   getProfile,
   logout,
   changePassword,
-  refresh
+  refresh,
+  updateProfile
 };

@@ -42,8 +42,10 @@ export default function MyGroups() {
   };
 
   // Se ejecuta al montar el componente
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { fetchAll(); }, []);
+  useEffect(() => { 
+    const load = async () => { await fetchAll(); };
+    load();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Helper para obtener el nombre de la materia por id
   const getSubjectName = (id) => {

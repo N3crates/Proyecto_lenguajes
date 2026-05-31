@@ -76,7 +76,7 @@ function LogDetailModal({ log, onClose }) {
           </div>
           <div className="au-detail-row">
             <span className="au-detail-label">Usuario</span>
-            <span className="au-detail-value">{log.userId || "Sistema"}</span>
+            <span className="au-detail-value">{log.user || log.userId || "Sistema"}</span>
           </div>
           <div className="au-detail-row">
             <span className="au-detail-label">Fecha y hora</span>
@@ -129,7 +129,8 @@ export default function AuditPage() {
     return logs.filter(log => {
       const matchSearch =
         log.action?.toLowerCase().includes(q) ||
-        log.userId?.toLowerCase().includes(q);
+        log.userId?.toLowerCase().includes(q) ||
+        log.user?.toLowerCase().includes(q);
 
       const a = (log.action || "").toUpperCase();
       const matchFilter =
@@ -250,7 +251,7 @@ export default function AuditPage() {
                         <td>
                           <div className="au-user-cell">
                             <div className="au-user-dot" />
-                            <span className="au-user-id">{log.userId || "Sistema"}</span>
+                            <span className="au-user-id">{log.user || log.userId || "Sistema"}</span>
                           </div>
                         </td>
                         <td>
