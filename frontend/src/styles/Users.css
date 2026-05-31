@@ -1,0 +1,135 @@
+/* UsersPage.css */
+
+/* Summary chips */
+.um-summary-chips {
+  display: flex; gap: 12px; flex-wrap: wrap;
+}
+.um-chip {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 14px 22px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  min-width: 90px;
+  transition: transform 0.15s;
+}
+.um-chip:hover { transform: translateY(-2px); }
+.um-chip-val {
+  font-family: 'Sora', sans-serif;
+  font-size: 26px; font-weight: 700;
+  color: var(--text);
+}
+.um-chip-lbl { font-size: 12px; font-weight: 600; color: var(--text-2); margin-top: 2px; }
+
+.chip-red    .um-chip-val { color: #dc2626; }
+.chip-indigo .um-chip-val { color: #4338ca; }
+.chip-teal   .um-chip-val { color: #0f766e; }
+
+/* Toolbar */
+.um-toolbar {
+  display: flex; align-items: center; gap: 16px; padding: 14px 18px;
+  flex-wrap: wrap;
+}
+.um-search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  flex: 1; min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--main-bg);
+  transition: border-color 0.15s;
+}
+.um-search-wrap:focus-within { border-color: var(--accent); }
+.um-search-wrap .al-icon { width: 15px; height: 15px; color: var(--text-2); flex-shrink: 0; }
+.um-search-input {
+  border: none; background: transparent;
+  font-family: 'Nunito', sans-serif; font-size: 14px; color: var(--text);
+  outline: none; width: 100%;
+}
+.um-filter-wrap {
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+.um-filter-label { font-size: 13px; font-weight: 600; color: var(--text-2); margin-right: 2px; }
+.um-filter-btn {
+  padding: 6px 13px;
+  border-radius: 100px;
+  border: 1px solid var(--border);
+  background: var(--main-bg);
+  font-family: 'Nunito', sans-serif; font-size: 12.5px; font-weight: 600;
+  color: var(--text-2); cursor: pointer; transition: all 0.15s;
+}
+.um-filter-btn.active {
+  background: var(--accent); border-color: var(--accent);
+  color: #fff;
+}
+.um-filter-btn:not(.active):hover { background: var(--accent-light); color: var(--accent); border-color: #c7d0fb; }
+
+/* Table card */
+.um-table-card { overflow: hidden; }
+
+.um-table {
+  width: 100%; border-collapse: collapse;
+  font-size: 14px;
+}
+.um-table thead tr {
+  border-bottom: 2px solid var(--border);
+}
+.um-table th {
+  padding: 13px 16px;
+  text-align: left;
+  font-size: 11.5px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.6px;
+  color: var(--text-2);
+  white-space: nowrap;
+}
+.um-table td { padding: 13px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.um-table tbody tr:last-child td { border-bottom: none; }
+.um-table tbody tr:hover { background: #f8f9fd; }
+
+.um-user-cell { display: flex; align-items: center; gap: 10px; }
+.um-avatar {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, #4f6ef7, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Sora', sans-serif; font-size: 11px; font-weight: 700;
+  color: #fff; flex-shrink: 0;
+}
+.um-user-name { font-weight: 600; color: var(--text); }
+.um-email { color: var(--text-2); font-size: 13.5px; }
+
+.um-role-select {
+  border: none; cursor: pointer; outline: none;
+  font-family: 'Nunito', sans-serif;
+  appearance: auto;
+}
+
+.um-actions { display: flex; gap: 6px; }
+
+/* Loading skeletons */
+.um-table-loading { display: flex; flex-direction: column; padding: 8px 16px; }
+.um-sk-row {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.um-sk-row:last-child { border-bottom: none; }
+
+/* Confirm text */
+.um-confirm-text {
+  font-size: 14px; color: var(--text);
+  line-height: 1.6;
+}
+
+/* Form grid */
+.um-form-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+@media (max-width: 500px) { .um-form-grid { grid-template-columns: 1fr; } }
+
+/* Chip total (gris neutro) */
+.chip-total .um-chip-val { color: var(--text); }
+
+/* Chips de roles personalizados */
+.chip-custom .um-chip-val { color: #7c3aed; }
